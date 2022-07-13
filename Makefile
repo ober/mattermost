@@ -13,20 +13,20 @@ deps:
 	/usr/bin/time -avp $(GERBIL_HOME)/bin/gxpkg install github.com/ober/oberlib
 	/usr/bin/time -avp $(GERBIL_HOME)/bin/gxpkg install github.com/yanndegat/colorstring
 
-build: deps timers
+build: deps
 	$(GERBIL_HOME)/bin/gxpkg link $(PROJECT) /src || true
 	$(GERBIL_HOME)/bin/gxpkg build $(PROJECT)
 
 linux-static-docker:
 	docker run -it \
-	-e GERBIL_PATH=/tmp/.gerbil \
+	-e GERBIL_PATH=/src/.gerbil \
 	-u "$(uid):$(gid)" \
     -v $(PWD):/src \
 	$(DOCKER_IMAGE) \
 	make -C /src linux-static
 
 linux-static: build
-    /usr/bin/time -avp $(GERBIL_HOME)/bin/gxc -o $(PROJECT)-bin -static \
+	/usr/bin/time -avp $(GERBIL_HOME)/bin/gxc -o $(PROJECT)-bin -static \
 	-cc-options "-Bstatic" \
 	-g -gsrc -genv \
 	-static \
