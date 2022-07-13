@@ -1,2 +1,2 @@
-# mattermost
-Mattermost client in Gerbil Scheme
+# Mattermost client in Gerbil
+
