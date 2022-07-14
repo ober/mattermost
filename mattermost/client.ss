@@ -13,6 +13,7 @@
   :std/logger
   :std/misc/list
   :std/net/websocket
+  :std/net/request
   :std/pregexp
   :std/srfi/13
   :std/sugar
@@ -39,10 +40,21 @@
                   (hash
                    ("login_id" .email)
                    ("password" .token)))))
-      (with ([ status body ] (rest-call 'post url (default-headers) data))
+      (let* ((reply (http-post url headers: (default-headers) data: data))
+             (status (request-status reply))
+             (headers (request-headers reply))
+             (text (request-text reply)))
         (unless status
-           (error body))
-        (present-item body)))))
+           (error text))
+        (for (header headers)
+          (let ((k (car header))
+                (v (cdr header)))
+            (when (string=? k "Token")
+              v)))))))
+
+(def post-posts-ephemeral ( ))
+;;
+;;Authorization: Bearer
 
 (def (get-chat-list)
   (let-hash (load-config)
