@@ -10,7 +10,7 @@ $(eval gid := $(shell id -g))
 default: linux-static-docker
 
 deps:
-	$(GERBIL_HOME)/bin/gxpkg install install github.com/ober/oberlib
+	$(GERBIL_HOME)/bin/gxpkg install github.com/ober/oberlib
 	$(GERBIL_HOME)/bin/gxpkg install github.com/yanndegat/colorstring
 
 build: deps
