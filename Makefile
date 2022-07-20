@@ -1,9 +1,7 @@
 PROJECT := mattermost
 
-NAME := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 DOCKER_IMAGE := "gerbil/alpine"
 
-$(info "name is " $(NAME))
 $(eval uid := $(shell id -u))
 $(eval gid := $(shell id -g))
 
@@ -19,7 +17,7 @@ build: deps
 
 linux-static-docker:
 	docker run -it \
-	-e GERBIL_PATH=/tmp/.gerbil \
+	-e GERBIL_PATH=/src/.gerbil \
 	-u "$(uid):$(gid)" \
     -v $(PWD):/src:z \
 	$(DOCKER_IMAGE) \
@@ -28,8 +26,8 @@ linux-static-docker:
 linux-static: build
 	/usr/bin/time -avp $(GERBIL_HOME)/bin/gxc -o $(PROJECT)-bin \
 	-static \
+	-O \
 	-cc-options "-Bstatic" \
-	-g -gsrc -genv \
 	-ld-options "-static -lpthread -L/usr/lib/x86_64-linux-gnu -lssl -ldl -lyaml -lz " \
 	-exe $(PROJECT)/$(PROJECT).ss
 
