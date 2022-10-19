@@ -3,4 +3,4 @@
 (import :ober/oberlib
         :ober/mattermost/client)
 
-(get-token)
+(search "hello gentlemen")

@@ -32,42 +32,162 @@
 (def user-list (hash))
 (def channel-list (hash))
 
-;; Client functions for your app here
 (def (get-token)
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/users/login" .server))
+    (let ((token "")
+          (url (format "https://~a/api/v4/users/login" .server))
           (data (json-object->string
-                  (hash
-                   ("login_id" .email)
-                   ("password" .token)))))
+                 (hash
+                  ("login_id" .email)
+                  ("password" .token)))))
       (let* ((reply (http-post url headers: (default-headers) data: data))
              (status (request-status reply))
              (headers (request-headers reply))
              (text (request-text reply)))
         (unless status
-           (error text))
+          (error text))
         (for (header headers)
           (let ((k (car header))
                 (v (cdr header)))
             (when (string=? k "Token")
-              v)))))))
+              (set! token v)))))
+      token)))
 
-(def post-posts-ephemeral ( ))
-;;
-;;Authorization: Bearer
 
-(def (get-chat-list)
+(def (users)
+  "Search all private and open type channels across all teams"
   (let-hash (load-config)
-    (let (url (format "https://grca.com/api/conversations.list?token=~a&type=im" .token))
-      (with ([status . body] (rest-call 'get url (default-headers)))
+    (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
+          (url (format "https://~a/api/v4/users" .server)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
           (error body))
-        (pi body)
-        (let ((body2 (car body)))
-          (when (table? body2)
-            (pi body2)
-            (let-hash body2
-              .?channels)))))))
+        (when (list? body)
+          (for (user body)
+            (pi user)
+            (let-hash user
+              (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
+      (style-output outs .?style))))
+
+(def (id->post id)
+  "Fetch contents of post id"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/posts/~a" .server id)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        body))))
+
+(def (id->user id)
+  "Fetch contents of post id"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/users/~a" .server id)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        body))))
+
+(def (id->channel id)
+  "Fetch contents of post id"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/channels/~a" .server id)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        body))))
+
+(def (search pattern)
+  "Search for users named pattern"
+  (let-hash (load-config)
+    (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
+          (url (format "https://~a/api/v4/teams/~a/posts/search" .server .team_id))
+          (data (json-object->string
+                 (hash
+                  ("terms" pattern)
+                  ("is_or_search" #f)
+                  ))))
+      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+        (unless status
+          (error body))
+        (when (table? body)
+          (let-hash body
+            (when (list? .order)
+              (for (order .order)
+                (let-hash (id->post order)
+                  (set! outs (cons [
+                                    .?message
+                                    .?reply_count
+                                    (let-hash (id->channel .?channel_id) .?display_name)
+                                    (let-hash (id->user .?user_id) (or .?username .email))
+                                     .?is_pinned
+                                     ] outs))))))))
+      (style-output outs .?style))))
+
+
+;;   (when (list? body)
+      ;;     (for (user body)
+      ;;       (pi user)
+      ;;       (let-hash user
+      ;;         (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
+      ;; (style-output outs .?style))))
+
+(def (user pattern)
+  "Search for users named pattern"
+  (let-hash (load-config)
+    (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
+          (url (format "https://~a/api/v4/users/search" .server))
+          (data (json-object->string
+                 (hash
+                  ("term" pattern)))))
+      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+        (unless status
+          (error body))
+        (when (list? body)
+          (for (user body)
+            (pi user)
+            (let-hash user
+              (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
+      (style-output outs .?style))))
+
+(def (channels)
+  "List all channels"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/channels" .server)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        (when (list? body)
+          (for (channel body)
+            (pi channel)))))))
+
+(def (channel pattern)
+  "Search for channel named pattern"
+  (let-hash (load-config)
+    (let ((outs [[  ]])
+          (url (format "https://~a/api/v4/channels/search" .server))
+          (data (json-object->string
+                 (hash
+                  ("term" pattern)))))
+      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+        (unless status
+          (error body))
+        (when (list? body)
+          (for (channel body)
+            (pi channel)))))))
+
+(def (teams)
+  "List all teams"
+  (let-hash (load-config)
+    (let ((outs [[ "Name" "Display" "Open Invite?" "Id" ]])
+          (url (format "https://~a/api/v4/teams" .server)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        (when (list? body)
+          (for (team body)
+            (let-hash team
+              (set! outs (cons [ .name .display_name .allow_open_invite .id ] outs))))))
+      (style-output outs .?style))))
 
 ;; Config functions
 (def (load-config)
@@ -76,7 +196,11 @@
     (unless (and (list? config-data)
                  (length>n? config-data 0)
                  (table? (car config-data)))
-      (displayln (format "Could not parse your config ~a" config-file))
+      (displayln (format "Could not parse your config ~a list:~a length:~a table:~a"
+                         config-file
+                         (list? config-data)
+                         (length>n? config-data 0)
+                         (table? (car config-data))))
       (exit 2))
 
     (hash-for-each
@@ -95,11 +219,10 @@
             config))))))
 
 (def (default-headers)
-  (let-hash (load-config)
-    [
-     ["Accept" :: "*/*"]
-     ["Content-type" :: "application/json"]
-     ]))
+  [
+   ["Accept" :: "*/*"]
+   ["Content-type" :: "application/json"]
+   ])
 
 (def (config)
   (let-hash (load-config)
@@ -129,3 +252,9 @@
     (base64-string->u8vector iv)
     (base64-string->u8vector password))))
 
+(def (auth-headers)
+  [
+   ["Accept" :: "*/*"]
+   ["Content-type" :: "application/json"]
+   ["Authorization" :: (format "bearer ~a" (get-token)) ]
+   ])

@@ -43,8 +43,15 @@
 
 (def interactives
   (hash
+   ("channel" (hash (description: "Search for user matching channel.") (usage: "channel <term>") (count: 1)))
+   ("channels" (hash (description: "Search for user matching channel.") (usage: "channel <term>") (count: 1)))
    ("config" (hash (description: "Set your password.") (usage: "config") (count: 0)))
    ("get-token" (hash (description: "Get token.") (usage: "get-token") (count: 0)))
+   ("search" (hash (description: "Search for term in all channels.") (usage: "search <term>") (count: 1)))
+   ("team" (hash (description: "Search for user matching team.") (usage: "team <term>") (count: 1)))
+   ("teams" (hash (description: "List all your teams.") (usage: "team") (count: 0)))
+   ("user" (hash (description: "Search for user matching term.") (usage: "user <term>") (count: 1)))
+   ("users" (hash (description: "List all the users.") (usage: "users") (count: 0)))
    ))
 
 (def (main . args)
