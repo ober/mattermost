@@ -53,9 +53,8 @@
               (set! token v)))))
       token)))
 
-
 (def (users)
-  "Search all private and open type channels across all teams"
+  "List users"
   (let-hash (load-config)
     (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
           (url (format "https://~a/api/v4/users" .server)))
@@ -96,6 +95,26 @@
           (error body))
         body))))
 
+(def (post channel message)
+  "Post a message to a channel"
+  (let-hash (load-config)
+    (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
+          (url (format "https://~a/api/v4/posts" .server))
+          (data (json-object->string
+                 (hash
+                  ("channel_id" (channel->id channel))
+                  ("message" message)
+                  ))))
+      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+        (unless status
+          (error body))
+        (when (table? body)
+          (let-hash body
+            (set! outs (cons [
+                              .message
+                              (hash->list .metadata)
+                              ] outs))))))))
+
 (def (search pattern)
   "Search for users named pattern"
   (let-hash (load-config)
@@ -119,17 +138,10 @@
                                     .?reply_count
                                     (let-hash (id->channel .?channel_id) .?display_name)
                                     (let-hash (id->user .?user_id) (or .?username .email))
-                                     .?is_pinned
-                                     ] outs))))))))
+                                    .?is_pinned
+                                    ] outs))))))))
       (style-output outs .?style))))
 
-
-;;   (when (list? body)
-      ;;     (for (user body)
-      ;;       (pi user)
-      ;;       (let-hash user
-      ;;         (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
-      ;; (style-output outs .?style))))
 
 (def (user pattern)
   "Search for users named pattern"
@@ -149,31 +161,23 @@
               (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
       (style-output outs .?style))))
 
-(def (channels)
-  "List all channels"
-  (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels" .server)))
-      (with ([ status body ] (rest-call 'get url (auth-headers)))
-        (unless status
-          (error body))
-        (when (list? body)
-          (for (channel body)
-            (pi channel)))))))
 
-(def (channel pattern)
+;; Channels
+
+(def (channel->id name)
   "Search for channel named pattern"
   (let-hash (load-config)
     (let ((outs [[  ]])
-          (url (format "https://~a/api/v4/channels/search" .server))
-          (data (json-object->string
-                 (hash
-                  ("term" pattern)))))
-      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+          (url (format "https://~a/api/v4/teams/~a/channels/name/~a" .server .team_id name)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
           (error body))
-        (when (list? body)
-          (for (channel body)
-            (pi channel)))))))
+        (when (table? body)
+          (let-hash body
+            .id))))))
+
+;; teams
+
 
 (def (teams)
   "List all teams"
@@ -186,7 +190,28 @@
         (when (list? body)
           (for (team body)
             (let-hash team
-              (set! outs (cons [ .name .display_name .allow_open_invite .id ] outs))))))
+              (set! outs (cons [ .?name .?display_name .?allow_open_invite .?id ] outs))))))
+      (style-output outs .?style))))
+
+
+(def (channels)
+  "List all channels"
+  (let-hash (load-config)
+    (let ((outs [[ "Name" "Display" "Purpose" "Msg Count" "Updated at" ]])
+          (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server .user_id .team_id)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        (when (list? body)
+          (for (channel body)
+            (let-hash channel
+              (set! outs (cons [
+                                .name
+                                .display_name
+                                (org-table-safe .purpose)
+                                .total_msg_count
+                                .update_at
+                                ] outs))))))
       (style-output outs .?style))))
 
 ;; Config functions
@@ -258,3 +283,8 @@
    ["Content-type" :: "application/json"]
    ["Authorization" :: (format "bearer ~a" (get-token)) ]
    ])
+
+(def (org-table-safe str)
+  (if (string? str)
+    (pregexp-replace* "\\|" str "-")
+    str))
