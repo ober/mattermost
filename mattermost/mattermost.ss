@@ -47,6 +47,7 @@
    ("channels" (hash (description: "Search for user matching channel.") (usage: "channel <term>") (count: 1)))
    ("config" (hash (description: "Set your password.") (usage: "config") (count: 0)))
    ("get-token" (hash (description: "Get token.") (usage: "get-token") (count: 0)))
+   ("post" (hash (description: "Post a message to a channel.") (usage: "post <channel> <Message>") (count: 2)))
    ("search" (hash (description: "Search for term in all channels.") (usage: "search <term>") (count: 1)))
    ("team" (hash (description: "Search for user matching team.") (usage: "team <term>") (count: 1)))
    ("teams" (hash (description: "List all your teams.") (usage: "team") (count: 0)))
