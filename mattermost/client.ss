@@ -115,6 +115,28 @@
                               (hash->list .metadata)
                               ] outs))))))))
 
+(def (whisper channel user message)
+  "Post a message to a channel"
+  (let-hash (load-config)
+    (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
+          (url (format "https://~a/api/v4/posts" .server))
+          (data (json-object->string
+                 (hash
+                  ("user_id" (user->id user))
+                  ("post" (hash
+                         ("channel_id" (channel->id channel))
+                         ("message" message)))
+                  ))))
+      (with ([ status body ] (rest-call 'post url (auth-headers) data))
+        (unless status
+          (error body))
+        (when (table? body)
+          (let-hash body
+            (set! outs (cons [
+                              .message
+                              (hash->list .metadata)
+                              ] outs))))))))
+
 (def (search pattern)
   "Search for users named pattern"
   (let-hash (load-config)
@@ -169,6 +191,18 @@
   (let-hash (load-config)
     (let ((outs [[  ]])
           (url (format "https://~a/api/v4/teams/~a/channels/name/~a" .server .team_id name)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+        (unless status
+          (error body))
+        (when (table? body)
+          (let-hash body
+            .id))))))
+
+(def (user->id name)
+  "Search for channel named pattern"
+  (let-hash (load-config)
+    (let ((outs [[  ]])
+          (url (format "https://~a/api/v4/users/username/~a" .server name)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
           (error body))
