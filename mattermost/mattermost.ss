@@ -53,6 +53,7 @@
    ("teams" (hash (description: "List all your teams.") (usage: "team") (count: 0)))
    ("user" (hash (description: "Search for user matching term.") (usage: "user <term>") (count: 1)))
    ("users" (hash (description: "List all the users.") (usage: "users") (count: 0)))
+   ("whisper" (hash (description: "Whisper to user in channel.") (usage: "whisper <user> <channel> <Message>") (count: 3)))
    ))
 
 (def (main . args)
