@@ -1,6 +1,6 @@
 PROJECT := mattermost
 
-DOCKER_IMAGE := "gerbil/alpine"
+DOCKER_IMAGE := "gerbil/gerbil:latest"
 
 $(eval uid := $(shell id -u))
 $(eval gid := $(shell id -g))
@@ -8,31 +8,23 @@ $(eval gid := $(shell id -g))
 default: linux-static-docker
 
 deps:
-	$(GERBIL_HOME)/bin/gxpkg install github.com/ober/oberlib
-	$(GERBIL_HOME)/bin/gxpkg install github.com/yanndegat/colorstring
+	/opt/gerbil/bin/gxpkg install github.com/ober/oberlib
+	/opt/gerbil/bin/gxpkg install github.com/yanndegat/colorstring
 
 build: deps
-	$(GERBIL_HOME)/bin/gxpkg link $(PROJECT) /src || true
-	$(GERBIL_HOME)/bin/gxpkg build $(PROJECT)
+	/opt/gerbil/bin/gxpkg link $(PROJECT) /src || true
+	/opt/gerbil/bin/gxpkg build $(PROJECT)
 
-linux-static-docker:
+linux-static-docker: clean
 	docker run -it \
 	-e GERBIL_PATH=/src/.gerbil \
-	-u "$(uid):$(gid)" \
-    -v $(PWD):/src:z \
+	-e USER=$(USER) \
+        -v $(PWD):/src:z \
 	$(DOCKER_IMAGE) \
-	make -C /src linux-static
-
-linux-static: build
-	/usr/bin/time -avp $(GERBIL_HOME)/bin/gxc -o $(PROJECT)-bin \
-	-static \
-	-O \
-	-cc-options "-Bstatic" \
-	-ld-options "-static -lpthread -L/usr/lib/x86_64-linux-gnu -lssl -ldl -lyaml -lz " \
-	-exe $(PROJECT)/$(PROJECT).ss
+	make -C /src build
 
 clean:
-	rm -Rf $(PROJECT)-bin
+	rm -rf .gerbil
 
 install:
-	mv $(PROJECT)-bin /usr/local/bin/$(PROJECT)
+	mv .gerbil/bin/$(PROJECT) /usr/local/bin/$(PROJECT)
