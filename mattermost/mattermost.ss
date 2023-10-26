@@ -4,17 +4,7 @@
 
 (import
   :gerbil/gambit
-  :gerbil/gambit/bits
-  :gerbil/gambit/misc
-  :gerbil/gambit/os
-  :gerbil/gambit/ports
-  :gerbil/gambit/threads
-  :std/actor/message
-  :std/actor/proto
   :std/coroutine
-  :std/crypto/cipher
-  :std/crypto/etc
-  :std/crypto/libcrypto
   :std/error
   :std/format
   :std/generic
@@ -33,7 +23,7 @@
   :std/text/base64
   :std/text/json
   :std/text/utf8
-  :std/text/yaml
+  :clan/text/yaml
   :ober/oberlib
   :ober/mattermost/client)
 
