@@ -5,7 +5,7 @@
 
 (defbuild-script
   '("mattermost/client"
-    (exe:
+    (static-exe:
      "mattermost/mattermost"
      "-ld-options"
      "-lpthread -lyaml -lz -lssl -L/usr/lib64")))
