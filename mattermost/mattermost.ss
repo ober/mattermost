@@ -39,6 +39,7 @@
    ("get-token" (hash (description: "Get token.") (usage: "get-token") (count: 0)))
    ("emojis" (hash (description: "List custom emojis.") (usage: "emojis") (count: 0)))
    ("groups" (hash (description: "List all groups your user is in.") (usage: "groups") (count: 0)))
+   ("posts" (hash (description: "Fetch posts for channel.") (usage: "posts <channel>") (count: 1)))
    ("post" (hash (description: "Post a message to a channel.") (usage: "post <channel> <Message>") (count: 2)))
    ("plugins" (hash (description: "Plugin Statuses.") (usage: "plugins") (count: 0)))
    ("privates" (hash (description: "List Private channels.") (usage: "privates") (count: 0)))
