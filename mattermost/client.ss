@@ -181,19 +181,33 @@
 
 (def (id->username id)
   "Fetch the username"
-  (let ((user (id->user id)))
-    (when (table? user)
-      (let-hash user
-	(or .?username .email)))))
+  (let ((hit (hash-get user-list id)))
+    (if hit
+      hit
+      (let ((user (id->user id)))
+	(when (table? user)
+	  (let-hash user
+	    (hash-put! user-list id .?username)
+	    (or .?username .email)))))))
 
 (def (id->channel id)
+  (let ((hit (hash-get channel-list id)))
+    (if hit
+      hit
+      (let ((channel (id->chan id)))
+	(when (table? channel)
+	  (let-hash channel
+	    (hash-put! channel-list id .?display_name)
+	    .?display_name))))))
+
+(def (id->chan id)
   "Fetch contents of post id"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels/~a" .server id)))
-      (with ([ status body ] (rest-call 'get url (auth-headers)))
-	(unless status
-	  (error body))
-	body))))
+  	(let ((url (format "https://~a/api/v4/channels/~a" .server id)))
+      	  (with ([ status body ] (rest-call 'get url (auth-headers)))
+	    (unless status
+	      (error body))
+	    body))))
 
 (def (post channel message)
   "Post a message to a channel"
@@ -232,11 +246,7 @@
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
 		    (let-hash (hash-ref .?posts item-sym)
-		      (if (hash-get users .?user_id)
-			(set! outs (cons [ (hash-get users .?user_id) .message ] outs))
-			(begin
-			  (hash-put! users .?user_id (id->username .?user_id))
-			  (set! outs (cons [ (hash-get users .?user_id) .message ] outs))))))))))))
+		      (set! outs (cons [ (id->username .?user_id) .message ] outs))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
@@ -283,8 +293,8 @@
 		  (set! outs (cons [
 				    .?message
 				    .?reply_count
-				    (let-hash (id->channel .?channel_id) .?display_name)
-				    (let-hash (id->user .?user_id) (or .?username .email))
+				    (id->channel .?channel_id)
+				    (id->username .?user_id)
 				    .?is_pinned
 				    ] outs))))))))
       (style-output outs .?style))))
