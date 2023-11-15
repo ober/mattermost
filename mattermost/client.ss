@@ -220,7 +220,8 @@
   (let-hash (load-config)
     (let* ((outs [[ "User" "Message" ]])
 	   (channel-id (channel->id channel))
-	   (url (format "https://~a/api/v4/channels/~a/posts" .server channel-id)))
+	   (url (format "https://~a/api/v4/channels/~a/posts" .server channel-id))
+	   (users (hash)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
 	  (error body))
@@ -231,7 +232,11 @@
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
 		    (let-hash (hash-ref .?posts item-sym)
-		      (set! outs (cons [ (id->username .?user_id) .message ] outs))))))))))
+		      (if (hash-get users .?user_id)
+			(set! outs (cons [ (hash-get users .?user_id) .message ] outs))
+			(begin
+			  (hash-put! users .?user_id (id->username .?user_id))
+			  (set! outs (cons [ (hash-ref users .?user_id) .message ] outs))))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
@@ -284,7 +289,6 @@
 				    ] outs))))))))
       (style-output outs .?style))))
 
-
 (def (user pattern)
   "Search for users named pattern"
   (let-hash (load-config)
@@ -301,7 +305,6 @@
 	    (let-hash user
 	      (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
       (style-output outs .?style))))
-
 
 ;; Channels
 
