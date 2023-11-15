@@ -236,7 +236,7 @@
 			(set! outs (cons [ (hash-get users .?user_id) .message ] outs))
 			(begin
 			  (hash-put! users .?user_id (id->username .?user_id))
-			  (set! outs (cons [ (hash-ref users .?user_id) .message ] outs))))))))))))
+			  (set! outs (cons [ (hash-get users .?user_id) .message ] outs))))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
