@@ -203,11 +203,11 @@
 (def (id->chan id)
   "Fetch contents of post id"
   (let-hash (load-config)
-  	(let ((url (format "https://~a/api/v4/channels/~a" .server id)))
-      	  (with ([ status body ] (rest-call 'get url (auth-headers)))
-	    (unless status
-	      (error body))
-	    body))))
+    (let ((url (format "https://~a/api/v4/channels/~a" .server id)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+	(unless status
+	  (error body))
+	body))))
 
 (def (post channel message)
   "Post a message to a channel"
@@ -245,8 +245,16 @@
 	      (for (item (reverse .?order))
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
+;;		    (displayln (hash->list (hash-ref .?posts item-sym)))
 		    (let-hash (hash-ref .?posts item-sym)
-		      (set! outs (cons [ (id->username .?user_id) .message ] outs))))))))))
+		      (if (= (string-length .message) 0)
+			(let-hash .props
+			  (set! outs (cons [ .override_username
+					     (format "~a ~a"
+						     .webhook_display_name
+						     (let-hash (car .attachments)
+						       (format "~a ~a" .text .fallback))) ] outs)))
+			(set! outs (cons [ (id->username .?user_id) .message ] outs)))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
