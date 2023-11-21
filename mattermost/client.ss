@@ -235,7 +235,7 @@
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	   (channel-id (channel->id channel))
-	   (url (format "https://~a/api/v4/channels/~a/posts" .server channel-id))
+	   (url (format "https://~a/api/v4/channels/~a/posts&per_page=1000" .server channel-id))
 	   (users (hash)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
