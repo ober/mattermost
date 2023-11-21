@@ -246,7 +246,6 @@
 	      (for (item (reverse .?order))
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
-		    (displayln (hash->list (hash-ref .?posts item-sym)))
 		    (let-hash (hash-ref .?posts item-sym)
 		      (if (= (string-length .message) 0)
 			(let-hash .props
@@ -255,7 +254,8 @@
 						     .webhook_display_name
 						     (let-hash (car .attachments)
 						       (format "~a ~a" .text .fallback))) ] outs)))
-			(set! outs (cons [ (date->string (epoch->date .create_at) "~Y-~m-~d ~H:~M:~S") (id->username .?user_id) .message ] outs)))))))))))
+;;			(set! outs (cons [ .create_at (id->username .?user_id) .message ] outs)))))))))))
+      			(set! outs (cons [ (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S") (id->username .?user_id) .message ] outs)))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
