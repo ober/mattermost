@@ -235,7 +235,7 @@
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	   (channel-id (channel->id channel))
-	   (url (format "https://~a/api/v4/channels/~a/posts&per_page=1000" .server channel-id))
+	   (url (format "https://~a/api/v4/channels/~a/posts?per_page=200" .server channel-id))
 	   (users (hash)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
@@ -258,7 +258,7 @@
 						       (let-hash (car .attachments)
 							 (format "~a ~a" .text .fallback))) ] outs)))
 			  ;;			(set! outs (cons [ .create_at (id->username .?user_id) .message ] outs)))))))))))
-      			  (set! outs (cons [ dt (id->username .?user_id) .message ] outs))))))))))))
+      			  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))))))))))
 	(style-output outs .?style))))
 
 (def (whisper channel user message)
