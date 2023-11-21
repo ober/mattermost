@@ -17,6 +17,7 @@
   :std/net/request
   :std/pregexp
   :std/srfi/13
+  :std/srfi/19
   :std/sugar
   :std/text/base64
   :std/text/json
@@ -232,7 +233,7 @@
 (def (posts channel)
   "Get posts for a channel"
   (let-hash (load-config)
-    (let* ((outs [[ "User" "Message" ]])
+    (let* ((outs [[ "Time" "User" "Message" ]])
 	   (channel-id (channel->id channel))
 	   (url (format "https://~a/api/v4/channels/~a/posts" .server channel-id))
 	   (users (hash)))
@@ -245,7 +246,7 @@
 	      (for (item (reverse .?order))
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
-;;		    (displayln (hash->list (hash-ref .?posts item-sym)))
+		    (displayln (hash->list (hash-ref .?posts item-sym)))
 		    (let-hash (hash-ref .?posts item-sym)
 		      (if (= (string-length .message) 0)
 			(let-hash .props
@@ -254,7 +255,7 @@
 						     .webhook_display_name
 						     (let-hash (car .attachments)
 						       (format "~a ~a" .text .fallback))) ] outs)))
-			(set! outs (cons [ (id->username .?user_id) .message ] outs)))))))))))
+			(set! outs (cons [ (date->string (epoch->date .create_at) "~Y-~m-~d ~H:~M:~S") (id->username .?user_id) .message ] outs)))))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
