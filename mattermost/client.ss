@@ -248,16 +248,18 @@
 		(let ((item-sym (string->symbol item)))
 		  (when (member item-sym posts)
 		    (let-hash (hash-ref .?posts item-sym)
-		      (if (= (string-length .message) 0)
-			(let-hash .props
-			  (set! outs (cons [ .override_username
-					     (format "~a ~a"
-						     .webhook_display_name
-						     (let-hash (car .attachments)
-						       (format "~a ~a" .text .fallback))) ] outs)))
-;;			(set! outs (cons [ .create_at (id->username .?user_id) .message ] outs)))))))))))
-      			(set! outs (cons [ (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S") (id->username .?user_id) .message ] outs)))))))))))
-      (style-output outs .?style))))
+		      (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
+			(if (= (string-length .message) 0)
+			  (let-hash .props
+			    (set! outs (cons [ dt
+					       .override_username
+					       (format "~a ~a"
+						       .webhook_display_name
+						       (let-hash (car .attachments)
+							 (format "~a ~a" .text .fallback))) ] outs)))
+			  ;;			(set! outs (cons [ .create_at (id->username .?user_id) .message ] outs)))))))))))
+      			  (set! outs (cons [ dt (id->username .?user_id) .message ] outs))))))))))))
+	(style-output outs .?style))))
 
 (def (whisper channel user message)
   "Post a message to a channel"
