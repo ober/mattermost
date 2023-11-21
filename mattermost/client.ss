@@ -241,6 +241,7 @@
 	(unless status
 	  (error body))
 	(when (table? body)
+	  (dp (hash->list body))
 	  (let-hash body
 	    (let ((posts (hash-keys .?posts)))
 	      (for (item (reverse .?order))
