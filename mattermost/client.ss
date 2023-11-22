@@ -17,7 +17,7 @@
   :std/net/request
   :std/pregexp
   :std/srfi/13
-  :std/srfi/19
+  (only-in :std/srfi/19 date->string)
   :std/sugar
   :std/text/base64
   :std/text/json
@@ -249,7 +249,7 @@
 	       (begintime (* (- now (* 84600 days)) 1000))
 	       (url (if nextmsg
 		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&since=~a" .server channel-id begintime)
-		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)))
+		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg))))
 	  (with ([ status body ] (rest-call 'get url (auth-headers)))
 	    (unless status
 	      (error body))
