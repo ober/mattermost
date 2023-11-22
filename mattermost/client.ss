@@ -274,7 +274,7 @@
 							     (format "~a ~a" .text .fallback))) ] outs)))
       			      (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			  )))))
-		(displayln
+;;		(displayln
 		(when .?has_next
 		  (lp .?next_post_id)))))))
       (style-output outs .?style))))
