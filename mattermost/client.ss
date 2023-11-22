@@ -249,7 +249,7 @@
 	       (begintime (* (- now (* 84600 days)) 1000))
 	       (url (if nextmsg
 		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&since=~a" .server channel-id begintime)
-		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&x=~a" .server channel-id begintime)))
+		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)))
 	  (with ([ status body ] (rest-call 'get url (auth-headers)))
 	    (unless status
 	      (error body))
@@ -274,8 +274,8 @@
 							     (format "~a ~a" .text .fallback))) ] outs)))
       			      (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			  )))))
-		(when .?prev_post_id
-		  (lp .?prev_post_id)))))))
+		(when .?has_next
+		  (lp .?next_post_id)))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
