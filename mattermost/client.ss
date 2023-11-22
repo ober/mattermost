@@ -242,31 +242,36 @@
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	   (channel-id (channel->id channel))
-	   (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=0" .server channel-id))
-	   (users (hash)))
-      (with ([ status body ] (rest-call 'get url (auth-headers)))
-	(unless status
-	  (error body))
-	(when (table? body)
-	  (dp (hash->list body))
-	  (let-hash body
-	    (let ((posts (hash-keys .?posts)))
-	      (for (item (reverse .?order))
-		(let ((item-sym (string->symbol item)))
-		  (when (member item-sym posts)
-		    (let-hash (hash-ref .?posts item-sym)
-		      (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
-			(if (and
-			      (table? .props)
-			      (hash-get .props 'webhook_display_name))
-			  (let-hash .props
-			    (set! outs (cons [ dt
-					       .?override_username
-					       (format "~a ~a"
-						       .?webhook_display_name
-						       (let-hash (car .attachments)
-							 (format "~a ~a" .text .fallback))) ] outs)))
-      			  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))))))))))
+	   (users (hash))
+	   (prevmsg ""))
+      (let lp ((latest prevmsg))
+	(let ((url (format "https://~a/api/v4/channels/~a/posts?per_page=200&before=~a" .server channel-id prevmsg)))
+	  (with ([ status body ] (rest-call 'get url (auth-headers)))
+	    (unless status
+	      (error body))
+	    (when (table? body)
+	      (dp (hash->list body))
+	      (let-hash body
+		(let ((posts (hash-keys .?posts)))
+		  (for (item (reverse .?order))
+		    (let ((item-sym (string->symbol item)))
+		      (when (member item-sym posts)
+			(let-hash (hash-ref .?posts item-sym)
+			  (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
+			    (if (and
+				  (table? .props)
+				  (hash-get .props 'webhook_display_name))
+			      (let-hash .props
+				(set! outs (cons [ dt
+						   .?override_username
+						   (format "~a ~a"
+							   .?webhook_display_name
+							   (let-hash (car .attachments)
+							     (format "~a ~a" .text .fallback))) ] outs)))
+      			      (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
+			    (set! prevmsg ..?has_next))))))
+		(when .?has_next
+		  (lp .?has_next)))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
