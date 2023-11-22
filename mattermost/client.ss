@@ -246,10 +246,10 @@
 	   (nextmsg #f))
       (let lp ((latest nextmsg))
 	(let* ((now (float->int (time->seconds (current-time))))
-	       (begintime (* (- now (* 84600 days)) 1000))
+	       (begintime (* (- now (* 84600 (string->number days))) 1000))
 	       (url (if nextmsg
-		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&since=~a" .server channel-id begintime)
-		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg))))
+		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)
+		      (format "https://~a/api/v4/channels/~a/posts?per_page=200&since=~a" .server channel-id begintime))))
 	  (with ([ status body ] (rest-call 'get url (auth-headers)))
 	    (unless status
 	      (error body))
@@ -274,6 +274,7 @@
 							     (format "~a ~a" .text .fallback))) ] outs)))
       			      (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			  )))))
+		(displayln
 		(when .?has_next
 		  (lp .?next_post_id)))))))
       (style-output outs .?style))))
