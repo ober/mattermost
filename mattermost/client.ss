@@ -24,7 +24,6 @@
   :clan/text/yaml)
 
 (export #t)
-(declare (not optimize-dead-definitions))
 
 (def version "0.01")
 

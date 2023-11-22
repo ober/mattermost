@@ -24,6 +24,7 @@
   :std/text/json
   :std/text/utf8
   :clan/text/yaml
+  :std/getopt
   :ober/oberlib
   :ober/mattermost/client)
 
@@ -31,9 +32,6 @@
 (def program-name "mattermost")
 
 (def (main . args)
-  (def channel
-    (command 'channel help: "Search for Channel matching pattern."
-	     (argument 'term help: "Search for term")))
   (def channels
     (command 'channels help: "List All Channels."))
   (def config
@@ -46,7 +44,7 @@
     (command 'groups help: "List all groups your user is in."))
   (def posts
     (command 'posts help: "Fetch posts for channel."
-	     (argument 'channel help "Fetch posts from channel")))
+	     (argument 'channel help: "Fetch posts from channel")))
   (def post
     (command 'post help: "Post a message to a channel."
 	     (argument 'channel help: "channel")
@@ -59,9 +57,6 @@
   (def search
     (command 'search help: "Search for term in all of team."
 	     (argument 'term help: "Term to search for")))
-  (def team
-    (command 'team help: "Search teams matching team."
-	     (argument 'term help: "Team name")))
   (def teams
     (command 'teams help: "List all your teams."))
   (def unread
@@ -96,7 +91,6 @@
 		    plugins
 		    privates
 		    search
-		    team
 		    teams
 		    unread
 		    unreads
@@ -109,8 +103,6 @@
 (def (process-args cmd opt)
   (let-hash opt
     (case cmd
-      ((channel)
-       (channel .term))
       ((channels)
        (channels))
       ((config)
@@ -131,12 +123,10 @@
        (privates))
       ((search)
        (search .term))
-      ((team)
-       (team .term))
       ((teams)
        (teams))
       ((unread)
-       (unread))
+       (unread .channel))
       ((unreads)
        (unreads))
       ((user)
