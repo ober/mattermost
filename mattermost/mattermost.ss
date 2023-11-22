@@ -44,7 +44,8 @@
     (command 'groups help: "List all groups your user is in."))
   (def posts
     (command 'posts help: "Fetch posts for channel."
-	     (argument 'channel help: "Fetch posts from channel")))
+	     (argument 'channel help: "Fetch posts from channel")
+	     (argument 'days-ago help: "How many days back to go")))
   (def post
     (command 'post help: "Post a message to a channel."
 	     (argument 'channel help: "channel")
@@ -114,7 +115,7 @@
       ((groups)
        (groups))
       ((posts)
-       (posts .channel))
+       (posts .channel .days-ago))
       ((post)
        (post .channel .message))
       ((plugins)
