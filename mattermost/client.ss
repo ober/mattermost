@@ -256,12 +256,14 @@
 		  (when (member item-sym posts)
 		    (let-hash (hash-ref .?posts item-sym)
 		      (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
-			(if (= (string-length .message) 0)
+			(if (and
+			      (table? .props)
+			      (hash-get .props 'webhook_display_name))
 			  (let-hash .props
 			    (set! outs (cons [ dt
-					       .override_username
+					       .?override_username
 					       (format "~a ~a"
-						       .webhook_display_name
+						       .?webhook_display_name
 						       (let-hash (car .attachments)
 							 (format "~a ~a" .text .fallback))) ] outs)))
       			  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))))))))))
