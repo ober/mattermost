@@ -27,58 +27,123 @@
   :ober/oberlib
   :ober/mattermost/client)
 
-(declare (not optimize-dead-definitions))
-
 (export main)
-
-(def interactives
-  (hash
-   ("channel" (hash (description: "Search for Channel matching pattern.") (usage: "channel <term>") (count: 1)))
-   ("channels" (hash (description: "List All Channels.") (usage: "channels") (count: 0)))
-   ("config" (hash (description: "Set your password.") (usage: "config") (count: 0)))
-   ("get-token" (hash (description: "Get token.") (usage: "get-token") (count: 0)))
-   ("emojis" (hash (description: "List custom emojis.") (usage: "emojis") (count: 0)))
-   ("groups" (hash (description: "List all groups your user is in.") (usage: "groups") (count: 0)))
-   ("posts" (hash (description: "Fetch posts for channel.") (usage: "posts <channel>") (count: 1)))
-   ("post" (hash (description: "Post a message to a channel.") (usage: "post <channel> <Message>") (count: 2)))
-   ("plugins" (hash (description: "Plugin Statuses.") (usage: "plugins") (count: 0)))
-   ("privates" (hash (description: "List Private channels.") (usage: "privates") (count: 0)))
-   ("search" (hash (description: "Search for term in all of team.") (usage: "search <term>") (count: 1)))
-   ("team" (hash (description: "Search for user matching team.") (usage: "team <term>") (count: 1)))
-   ("teams" (hash (description: "List all your teams.") (usage: "team") (count: 0)))
-   ("unread" (hash (description: "Show unread messages.") (usage: "unread <channel>") (count: 1)))
-   ("unreads" (hash (description: "Show unread stats.") (usage: "unreads") (count: 0)))
-   ("user" (hash (description: "Search for user matching term.") (usage: "user <term>") (count: 1)))
-   ("userinfo" (hash (description: "Return user info.") (usage: "userinfo <user>") (count: 1)))
-   ("users" (hash (description: "List all the users.") (usage: "users") (count: 0)))
-   ("whisper" (hash (description: "Whisper to user in channel.") (usage: "whisper <user> <channel> <Message>") (count: 3)))
-   ))
+(def program-name "mattermost")
 
 (def (main . args)
-  (if (null? args)
-    (usage))
-  (let* ((argc (length args))
-         (verb (car args))
-         (args2 (cdr args)))
-    (unless (hash-key? interactives verb)
-      (usage))
-    (let* ((info (hash-get interactives verb))
-           (count (hash-get info count:)))
-      (unless count
-        (set! count 0))
-      (unless (= (length args2) count)
-        (usage-verb verb))
-      (apply (eval (string->symbol (string-append "ober/mattermost/client#" verb))) args2))))
+  (def channel
+    (command 'channel help: "Search for Channel matching pattern."
+	     (argument 'term help: "Search for term")))
+  (def channels
+    (command 'channels help: "List All Channels."))
+  (def config
+    (command 'config help: "Set your password."))
+  (def get-token
+    (command 'get-token help: "Get token."))
+  (def emojis
+    (command 'emojis help: "List custom emojis."))
+  (def groups
+    (command 'groups help: "List all groups your user is in."))
+  (def posts
+    (command 'posts help: "Fetch posts for channel."
+	     (argument 'channel help "Fetch posts from channel")))
+  (def post
+    (command 'post help: "Post a message to a channel."
+	     (argument 'channel help: "channel")
+	     (argument 'message help: "Message to send")))
+  (def plugins
+    (command 'plugins help: "Plugin Statuses."))
 
-(def (usage-verb verb)
-  (let ((howto (hash-get interactives verb)))
-    (displayln "Wrong number of arguments. Usage is:")
-    (displayln program-name " " (hash-get howto usage:))
-    (exit 2)))
+  (def privates
+    (command 'privates help: "List Private channels."))
+  (def search
+    (command 'search help: "Search for term in all of team."
+	     (argument 'term help: "Term to search for")))
+  (def team
+    (command 'team help: "Search teams matching team."
+	     (argument 'term help: "Team name")))
+  (def teams
+    (command 'teams help: "List all your teams."))
+  (def unread
+    (command 'unread help: "Show unread messages."
+	     (argument 'channel help: "Channel")))
+  (def unreads
+    (command 'unreads help: "Show unread stats."))
+  (def user
+    (command 'user help: "Search for user matching term."
+	     (argument 'term help: "User pattern")))
+  (def userinfo
+    (command 'userinfo help: "Return user info."
+	     (argument 'term help: "User to return info on")))
+  (def users
+    (command 'users help: "List all the users."))
+  (def whisper
+    (command 'whisper help: "Whisper to user in channel."
+	     (argument 'user)
+	     (argument 'channel)
+	     (argument 'messsage)))
 
-(def (usage)
-  (displayln (format "~a: version ~a" program-name version))
-  (displayln "Verbs:")
-  (for (k (sort! (hash-keys interactives) string<?))
-    (displayln (format "~a: ~a" k (hash-get (hash-get interactives k) description:))))
-  (exit 2))
+  (call-with-getopt process-args args
+		    program: program-name
+		    help: "Mattermost cli"
+		    channels
+		    config
+		    get-token
+		    emojis
+		    groups
+		    posts
+		    post
+		    plugins
+		    privates
+		    search
+		    team
+		    teams
+		    unread
+		    unreads
+		    user
+		    userinfo
+		    users
+		    whisper
+		    ))
+
+(def (process-args cmd opt)
+  (let-hash opt
+    (case cmd
+      ((channel)
+       (channel .term))
+      ((channels)
+       (channels))
+      ((config)
+       (config))
+      ((get-token)
+       (get-token))
+      ((emojis)
+       (emojis))
+      ((groups)
+       (groups))
+      ((posts)
+       (posts .channel))
+      ((post)
+       (post .channel .message))
+      ((plugins)
+       (plugins))
+      ((privates)
+       (privates))
+      ((search)
+       (search .term))
+      ((team)
+       (team .term))
+      ((teams)
+       (teams))
+      ((unread)
+       (unread))
+      ((unreads)
+       (unreads))
+      ((user)
+       (user .term))
+      ((userinfo)
+       (userinfo .term))
+      ((users)
+       (users))
+      ((whisper)
+       (whisper .user .channel .message)))))
