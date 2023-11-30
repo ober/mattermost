@@ -303,7 +303,7 @@
 (def (search pattern)
   "Search for users named pattern"
   (let-hash (load-config)
-    (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
+    (let ((outs [[ "User Id" "Message" "Reply Count" "Channel" "Pinned?" ]])
 	  (url (format "https://~a/api/v4/teams/~a/posts/search" .server .team_id))
 	  (data (json-object->string
 		 (hash
@@ -321,10 +321,10 @@
 	      (for (order .order)
 		(let-hash (id->post order)
 		  (set! outs (cons [
+				    (id->username .?user_id)
 				    .?message
 				    .?reply_count
 				    (id->channel .?channel_id)
-				    (id->username .?user_id)
 				    .?is_pinned
 				    ] outs))))))))
       (style-output outs .?style))))
