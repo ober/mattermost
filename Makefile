@@ -1,6 +1,6 @@
 PROJECT := mattermost
 
-DOCKER_IMAGE := "gerbil/gerbil:latest"
+DOCKER_IMAGE := "gerbil/gerbilxx:latest"
 
 $(eval uid := $(shell id -u))
 $(eval gid := $(shell id -g))
@@ -8,12 +8,11 @@ $(eval gid := $(shell id -g))
 default: linux-static-docker
 
 deps:
-	/opt/gerbil/bin/gxpkg install github.com/ober/oberlib
-	/opt/gerbil/bin/gxpkg install github.com/yanndegat/colorstring
+	/opt/gerbil/bin/gxpkg deps -i
 
 build: deps
 	/opt/gerbil/bin/gxpkg link $(PROJECT) /src || true
-	/opt/gerbil/bin/gxpkg build $(PROJECT)
+	/opt/gerbil/bin/gxpkg build -R $(PROJECT)
 
 linux-static-docker: clean
 	docker run -it \
