@@ -63,10 +63,10 @@
 	(unless status
 	  (error body))
 	(let-hash body
-	  (when (table? .?posts)
+	  (when (hash-table? .?posts)
 	    (hash-for-each
 	     (lambda (k v)
-	       (when (table? v)
+	       (when (hash-table? v)
 		 (let-hash v
 		   (set! outs (cons [ (id->username .?user_id) (one-liner .?message) .?id ] outs)))))
 	     .?posts))))
@@ -128,7 +128,7 @@
 	(unless status
 	  (error body))
 	(for (emoji body)
-	  (when (table? emoji)
+	  (when (hash-table? emoji)
 	    (let-hash emoji
 	      (set! outs (cons [ .?name (hash->list (id->user .?creator_id)) .?updated_at .?created_at .?deleted_at .?id ] outs))))))
       (style-output outs .?style))))
@@ -164,7 +164,7 @@
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    (set! outs (cons [ .?username .?first_name .?last_name .?nickname .?position (print-date (epoch->date .?update_at)) .?roles .?id ] outs)))))
       (style-output outs .?style))))
@@ -193,7 +193,7 @@
     (if hit
       hit
       (let ((user (id->user id)))
-	(when (table? user)
+	(when (hash-table? user)
 	  (let-hash user
 	    (hash-put! user-list id .?username)
 	    (or .?username .email)))))))
@@ -203,7 +203,7 @@
     (if hit
       hit
       (let ((channel (id->chan id)))
-	(when (table? channel)
+	(when (hash-table? channel)
 	  (let-hash channel
 	    (hash-put! channel-list id .?display_name)
 	    .?display_name))))))
@@ -230,7 +230,7 @@
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    (set! outs (cons [
 			      .message
@@ -253,7 +253,7 @@
 	  (with ([ status body ] (rest-call 'get url (auth-headers)))
 	    (unless status
 	      (error body))
-	    (when (table? body)
+	    (when (hash-table? body)
 	      (dp (hash->list body))
 	      (let-hash body
 		(let ((posts (hash-keys .?posts)))
@@ -263,7 +263,7 @@
 			(let-hash (hash-ref .?posts item-sym)
 			  (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
 			    (if (and
-				  (table? .props)
+				  (hash-table? .props)
 				  (hash-get .props 'webhook_display_name))
 			      (let-hash .props
 				(set! outs (cons [ dt
@@ -293,7 +293,7 @@
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    (set! outs (cons [
 			      .message
@@ -315,7 +315,7 @@
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    (when (list? .order)
 	      (for (order .order)
@@ -356,7 +356,7 @@
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    .id))))))
 
@@ -368,7 +368,7 @@
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
 	  (error body))
-	(when (table? body)
+	(when (hash-table? body)
 	  (let-hash body
 	    .id))))))
 
@@ -416,12 +416,12 @@
         (config-data (yaml-load config-file)))
     (unless (and (list? config-data)
                  (length>n? config-data 0)
-                 (table? (car config-data)))
+                 (hash-table? (car config-data)))
       (displayln (format "Could not parse your config ~a list:~a length:~a table:~a"
                          config-file
                          (list? config-data)
                          (length>n? config-data 0)
-                         (table? (car config-data))))
+                         (hash-table? (car config-data))))
       (exit 2))
 
     (hash-for-each
