@@ -1,6 +1,7 @@
 PROJECT := mattermost
 
-DOCKER_IMAGE := "gerbil/gerbilxx:latest"
+ARCH := $(shell uname -m)
+DOCKER_IMAGE := "gerbil/gerbilxx:$(ARCH)-master"
 
 $(eval uid := $(shell id -u))
 $(eval gid := $(shell id -g))
