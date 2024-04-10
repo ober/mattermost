@@ -2,6 +2,7 @@ PROJECT := mattermost
 
 ARCH := $(shell uname -m)
 DOCKER_IMAGE := "gerbil/gerbilxx:$(ARCH)-master"
+PWD := $(shell pwd)
 
 $(eval uid := $(shell id -u))
 $(eval gid := $(shell id -g))
@@ -19,7 +20,7 @@ linux-static-docker: clean
 	docker run -it \
 	-e GERBIL_PATH=/src/.gerbil \
 	-e USER=$(USER) \
-        -v $(PWD):/src:z \
+    -v $(PWD):/src:z \
 	$(DOCKER_IMAGE) \
 	make -C /src build
 
