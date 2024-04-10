@@ -13,6 +13,7 @@ deps:
 	/opt/gerbil/bin/gxpkg deps -i
 
 build: deps
+ 	git config --global --add safe.directory /src
 	/opt/gerbil/bin/gxpkg link $(PROJECT) /src || true
 	/opt/gerbil/bin/gxpkg build -R $(PROJECT)
 
