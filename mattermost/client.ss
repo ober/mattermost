@@ -37,7 +37,7 @@
   (let-hash (load-config)
     (let ((token "")
 	  (url (format "https://~a/api/v4/users/login" .server))
-	  (data (json-object->string
+	  (data (my-json-object->string
 		 (hash
 		  ("login_id" .email)
 		  ("password" .token)))))
@@ -222,7 +222,7 @@
   (let-hash (load-config)
     (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
 	  (url (format "https://~a/api/v4/posts" .server))
-	  (data (json-object->string
+	  (data (my-json-object->string
 		 (hash
 		  ("channel_id" (channel->id channel))
 		  ("message" message)
@@ -284,7 +284,7 @@
   (let-hash (load-config)
     (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
 	  (url (format "https://~a/api/v4/posts" .server))
-	  (data (json-object->string
+	  (data (my-json-object->string
 		 (hash
 		  ("user_id" (user->id user))
 		  ("post" (hash
@@ -305,7 +305,7 @@
   (let-hash (load-config)
     (let ((outs [[ "User Id" "Message" "Reply Count" "Channel" "Pinned?" ]])
 	  (url (format "https://~a/api/v4/teams/~a/posts/search" .server .team_id))
-	  (data (json-object->string
+	  (data (my-json-object->string
 		 (hash
 		  ("terms" pattern)
 		  ("include_deleted_channels" #f)
@@ -334,7 +334,7 @@
   (let-hash (load-config)
     (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
 	  (url (format "https://~a/api/v4/users/search" .server))
-	  (data (json-object->string
+	  (data (my-json-object->string
 		 (hash
 		  ("term" pattern)))))
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
