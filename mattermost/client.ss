@@ -398,7 +398,8 @@
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	(unless status
 	  (error body))
-	(when (list? body)
+  (dp body)
+  (when (list? body)
 	  (for (channel body)
 	    (let-hash channel
 	      (set! outs (cons [
