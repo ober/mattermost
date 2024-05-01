@@ -400,7 +400,8 @@
 	  (error body))
   (dp body)
   (when (list? body)
-	  (for (channel body)
+    (for (channel body)
+         (dp (hash->string channel))
 	    (let-hash channel
 	      (set! outs (cons [
 				.name
