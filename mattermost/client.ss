@@ -246,7 +246,7 @@
 	         (nextmsg #f))
       (let lp ((latest nextmsg))
 	      (let* ((now (float->int (time->seconds (current-time))))
-	             (begintime (* (- now (* 84600 (string->number days))) 1000))
+	             (begintime (- now (* 84600 (string->number days))))
 	             (url (if nextmsg
 		                  (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)
 		                  (format "https://~a/api/v4/channels/~a/posts?since=~a" .server channel-id begintime))))
