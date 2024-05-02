@@ -270,8 +270,13 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-                (when (< (any->int page) (+ (any->int page) (any->int recur)))
-                  (lp (1+ (any->int page)))))))))
+                (let* ((page (any->int page))
+                       (recur (any->int recur))
+                       (delta (+ page recur)))
+
+                  (when (< page delta)
+                    (dp (format "page is ~a less than ~a" page delta))
+                    (lp (1+ page)))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
