@@ -247,7 +247,9 @@
       (let lp ((latest nextmsg))
 	      (let* ((now (float->int (time->seconds (current-time))))
 	             (begintime (- now (* 84600 (string->number days))))
-	             (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)))
+	             (url (if nextmsg
+                      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)
+                      (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=0" .server channel-id))))
 	        (with ([ status body ] (rest-call 'get url (auth-headers)))
 	          (unless status
 	            (error body))
