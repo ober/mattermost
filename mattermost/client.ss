@@ -273,7 +273,7 @@
 			                    )))))
                 (when (< (any->int page) max-page)
                   (dp (format "page is ~a less than ~a" page max-page))
-                  (lp (1+ page))))))))
+                  (lp (1+ (any->int page)))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
