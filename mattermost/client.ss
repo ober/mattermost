@@ -247,9 +247,7 @@
       (let lp ((latest nextmsg))
 	      (let* ((now (float->int (time->seconds (current-time))))
 	             (begintime (- now (* 84600 (string->number days))))
-	             (url (if nextmsg
-		                  (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)
-		                  (format "https://~a/api/v4/channels/~a/posts?since=~a" .server channel-id begintime))))
+	             (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)))
 	        (with ([ status body ] (rest-call 'get url (auth-headers)))
 	          (unless status
 	            (error body))
@@ -274,9 +272,8 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-                ;;		(displayln
-		            (when .?has_next
-		              (lp .?next_post_id)))))))
+		            (when .?next_post_id
+		              (lp .next_post_id)))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
