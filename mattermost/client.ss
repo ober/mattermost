@@ -237,7 +237,7 @@
 			                        (hash->list .metadata)
 			                        ] outs))))))))
 
-(def (posts channel page)
+(def (posts channel page recur)
   "Get posts for a channel"
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
@@ -270,7 +270,8 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-		            (lp (1+ page)))))))
+                (when recur
+                  (lp (1+ (string->number page)))))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
