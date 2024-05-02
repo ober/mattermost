@@ -237,19 +237,15 @@
 			                        (hash->list .metadata)
 			                        ] outs))))))))
 
-(def (posts channel days)
+(def (posts channel page)
   "Get posts for a channel"
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	         (channel-id (channel->id channel))
-	         (users (hash))
-	         (nextmsg #f))
-      (let lp ((latest nextmsg))
+	         (users (hash)))
+      (let lp ((page page))
 	      (let* ((now (float->int (time->seconds (current-time))))
-	             (begintime (- now (* 84600 (string->number days))))
-	             (url (if nextmsg
-                      (format "https://~a/api/v4/channels/~a/posts?per_page=200&after=~a" .server channel-id nextmsg)
-                      (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=0" .server channel-id))))
+	             (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=~a" .server channel-id page)))
 	        (with ([ status body ] (rest-call 'get url (auth-headers)))
 	          (unless status
 	            (error body))
@@ -274,8 +270,7 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-		            (when (> (string-length .?next_post_id) 0)
-		              (lp .next_post_id)))))))
+		            (lp (1+ page)))))))
       (style-output outs .?style))))
 
 (def (whisper channel user message)
