@@ -116,7 +116,7 @@
       ((groups)
        (groups))
       ((posts)
-       (posts .channel .days-ago))
+       (posts .channel .page .recur))
       ((post)
        (post .channel .message))
       ((plugins)
