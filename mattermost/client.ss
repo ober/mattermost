@@ -270,7 +270,7 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-                (when recur
+                (when (< (string->number page) (+ page recur))
                   (lp (1+ (string->number page)))))))))
       (style-output outs .?style))))
 
