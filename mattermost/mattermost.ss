@@ -45,7 +45,8 @@
   (def posts
     (command 'posts help: "Fetch posts for channel."
 	     (argument 'channel help: "Fetch posts from channel")
-	     (argument 'days-ago help: "How many days back to go")))
+	     (argument 'page help: "Initial page to display")
+         (argument 'recur help: "How many pages to fetch")))
   (def post
     (command 'post help: "Post a message to a channel."
 	     (argument 'channel help: "channel")
