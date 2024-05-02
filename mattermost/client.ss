@@ -242,7 +242,8 @@
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	         (channel-id (channel->id channel))
-	         (users (hash)))
+           (max-page (+ (any->int page) (any->int recur)))
+           (users (hash)))
       (let lp ((page page))
 	      (let* ((now (float->int (time->seconds (current-time))))
 	             (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=~a" .server channel-id page)))
@@ -270,35 +271,31 @@
 							                                               (format "~a ~a" .text .fallback))) ] outs)))
       			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
 			                    )))))
-                (let* ((page (any->int page))
-                       (recur (any->int recur))
-                       (delta (+ page recur)))
-
-                  (when (< page delta)
-                    (dp (format "page is ~a less than ~a" page delta))
-                    (lp (1+ page)))))))))
-      (style-output outs .?style))))
+                (when (< (any->int page) max-page)
+                  (dp (format "page is ~a less than ~a" page max-page))
+                  (lp (1+ page)))))))))
+    (style-output outs .?style))))
 
 (def (whisper channel user message)
-  "Post a message to a channel"
-  (let-hash (load-config)
-    (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
-	        (url (format "https://~a/api/v4/posts" .server))
-	        (data (my-json-object->string
-		             (hash
-		              ("user_id" (user->id user))
-		              ("post" (hash
-			                     ("channel_id" (channel->id channel))
-			                     ("message" message)))))))
-      (with ([ status body ] (rest-call 'post url (auth-headers) data))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          (set! outs (cons [
-			                        .message
-			                        (hash->list .metadata)
-			                        ] outs))))))))
+"Post a message to a channel"
+(let-hash (load-config)
+  (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
+	      (url (format "https://~a/api/v4/posts" .server))
+	      (data (my-json-object->string
+		           (hash
+		            ("user_id" (user->id user))
+		            ("post" (hash
+			                   ("channel_id" (channel->id channel))
+			                   ("message" message)))))))
+    (with ([ status body ] (rest-call 'post url (auth-headers) data))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        (set! outs (cons [
+			                      .message
+			                      (hash->list .metadata)
+			                      ] outs))))))))
 
 (def (search pattern)
   "Search for users named pattern"
