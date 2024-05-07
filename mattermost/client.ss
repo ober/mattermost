@@ -450,7 +450,7 @@
       (hash-put! config 'style (or .?style "org-mode"))
       (when .?email
         (let (id (get-id-from-email .email))
-          (hash-put! config 'id id)))
+          (hash-put! config 'user_id id)))
       (when .?secrets
 	      (let-hash (u8vector->object (base64-decode .secrets))
 	        (let ((password (get-password-from-config .key .iv .password)))
