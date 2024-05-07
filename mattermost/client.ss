@@ -58,7 +58,7 @@
   "Fetch unread messages and surrounding items from channel"
   (let-hash (load-config)
     (let ((outs [[ "User" "Message" "Id" ]])
-	        (url (format "https://~a/api/v4/users/~a/channels/~a/posts/unread" .server .user_id (channel->id channel))))
+          (url (format "https://~a/api/v4/users/~a/channels/~a/posts/unread" .server .user_id (channel->id channel))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -177,6 +177,22 @@
 	      (unless status
 	        (error body))
 	      body))))
+
+(def (email->id email)
+  "Fetch the userid based on email"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/users/email/~a" .server email)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+	      (unless status
+	        (error body))
+	      body))))
+
+(def (get-id-from-email email)
+  "Wrapper for email-id"
+  (let ((user (email->id email)))
+    (when (hash-table? user)
+      (let-hash user
+        (displayln (hash->string user))))))
 
 (def (id->user id)
   "Fetch contents of post id"
@@ -435,8 +451,9 @@
       (when .?secrets
 	      (let-hash (u8vector->object (base64-decode .secrets))
 	        (let ((password (get-password-from-config .key .iv .password)))
-	          (hash-put! config 'token password)
-	          config))))))
+	          (hash-put! config 'token password))))
+	          config)))
+
 
 (def (default-headers)
   [
