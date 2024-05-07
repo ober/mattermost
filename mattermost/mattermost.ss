@@ -80,9 +80,8 @@
 	     (argument 'channel)
 	     (argument 'messsage)))
 
-  (def get-id-from-email
-    (command 'get-id-from-email help: "Get id info for email"
-        (argument 'email)))
+  (def get-team-id
+    (command 'get-team-id help: "Get id info for email"))
 
   (call-with-getopt process-args args
 		    program: program-name
@@ -103,7 +102,7 @@
 		    user
 		    userinfo
 		    users
-            get-id-from-email
+            get-team-id
 		    whisper
 		    ))
 
@@ -142,7 +141,7 @@
        (userinfo .term))
       ((users)
        (users))
-      ((get-id-from-email)
-       (get-id-from-email .email))
+      ((get-team-id)
+       (get-team-id))
       ((whisper)
        (whisper .user .channel .message)))))

@@ -158,12 +158,11 @@
 				                        .?update_at ] outs))))))
       (style-output outs .?style))))
 
-(def (userinfo email)
+(def (userinfo username)
   "Fetch the user data for user_id"
   (let-hash (load-config)
     (let* ((outs [[ "Username" "First Name" "Last Name" "Nickname" "Position" "Updated" "Roles" "Id" ]])
-          (user_id (get-id-from-email email))
-          (url (format "https://~a/api/v4/users/username/~a" .server user_id)))
+          (url (format "https://~a/api/v4/users/username/~a" .server username)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -195,6 +194,7 @@
   "Wrapper for email-id"
   (let ((user (email->id email)))
     (when (hash-table? user)
+      (dp (hash->string user))
       (let-hash user
         .?id))))
 
@@ -391,21 +391,31 @@
 	          .id))))))
 
 ;; teams
+(def (get-team-id)
+  "Get primary team I'm on"
+  (let ((body (get-teams)))
+    (let-hash (car body)
+      .?id)))
 
+(def (get-teams)
+  "List teams you are in"
+  (let-hash (load-config)
+    (let ((url (format "https://~a/api/v4/teams" .server)))
+      (with ([ status body ] (rest-call 'get url (auth-headers)))
+	      (unless status
+	        (error body))
+        body))))
 
 (def (teams)
   "List all teams"
   (let-hash (load-config)
     (let ((outs [[ "Name" "Display" "Open Invite?" "Id" ]])
-	        (url (format "https://~a/api/v4/teams" .server)))
-      (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (when (list? body)
-	        (for (team body)
-	          (let-hash team
-	            (set! outs (cons [ .?name .?display_name .?allow_open_invite .?id ] outs))))))
-      (style-output outs .?style))))
+	        (body (get-teams)))
+	    (when (list? body)
+	      (for (team body)
+	        (let-hash team
+	          (set! outs (cons [ .?name .?display_name .?allow_open_invite .?id ] outs)))))
+    (style-output outs .?style))))
 
 
 (def (channels)
