@@ -192,7 +192,7 @@
   (let ((user (email->id email)))
     (when (hash-table? user)
       (let-hash user
-        (displayln (hash->string user))))))
+        .?id))))
 
 (def (id->user id)
   "Fetch contents of post id"
@@ -448,11 +448,14 @@
       (when (and .?key .?iv .?password)
 	      (hash-put! config 'password (get-password-from-config .key .iv .password)))
       (hash-put! config 'style (or .?style "org-mode"))
+      (when .?email
+        (let (id (get-id-from-email .email))
+          (hash-put! config 'id id)))
       (when .?secrets
 	      (let-hash (u8vector->object (base64-decode .secrets))
 	        (let ((password (get-password-from-config .key .iv .password)))
 	          (hash-put! config 'token password))))
-	          config)))
+	    config)))
 
 
 (def (default-headers)
