@@ -33,6 +33,7 @@
 (def user-list (hash))
 (def channel-list (hash))
 (def user-id #f)
+(def team-id #f)
 
 (def (get-token)
   (let-hash (load-config)
@@ -166,6 +167,7 @@
 	      (unless status
 	        (error body))
 	      (when (hash-table? body)
+          (dp (hash->string body))
 	        (let-hash body
 	          (set! outs (cons [ .?username .?first_name .?last_name .?nickname .?position (print-date (epoch->date .?update_at)) .?roles .?id ] outs)))))
       (style-output outs .?style))))
@@ -441,20 +443,25 @@
                          (hash-table? (car config-data))))
       (exit 2))
 
-    (hash-for-each
-     (lambda (k v)
-       (hash-put! config (string->symbol k) v))
-     (car config-data))
-
-    (let-hash config
-      (when (and .?key .?iv .?password)
-	      (hash-put! config 'password (get-password-from-config .key .iv .password)))
-      (hash-put! config 'style (or .?style "org-mode"))
-      (when .?secrets
-	      (let-hash (u8vector->object (base64-decode .secrets))
-	        (let ((password (get-password-from-config .key .iv .password)))
-	          (hash-put! config 'token password))))
-	    config)))
+    (let ((data (car config-data)))
+      (when (hash-table? data)
+        (hash-for-each
+         (lambda (k v)
+           (hash-put! config (string->symbol k) v))
+         data))
+      (let-hash config
+        (when (and .?key .?iv .?password)
+	        (hash-put! config 'password (get-password-from-config .key .iv .password)))
+        (hash-put! config 'style (or .?style "org-mode"))
+        (unless user-id
+          (set! user-id (get-id-from-email .?email)))
+        (unless team-id
+          (set! team-id (get-id-from-email .?email)))
+        (when .?secrets
+	        (let-hash (u8vector->object (base64-decode .secrets))
+	          (let ((password (get-password-from-config .key .iv .password)))
+	            (hash-put! config 'token password))))
+	      config)))
 
 
 (def (default-headers)
