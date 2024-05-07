@@ -94,8 +94,8 @@
 (def (privates)
   "Get a page of private channels on a team based on query string"
   (let-hash (load-config)
-    (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/teams/~a/channels/private" .server .team_id)))
+    (let* ((outs [[ "stuff" ]])
+           (url (format "https://~a/api/v4/teams/~a/channels/private" .server (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -115,7 +115,7 @@
   "Get a page of private channels on a team based on query string"
   (let-hash (load-config)
     (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/teams/~a/groups" .server .team_id)))
+	        (url (format "https://~a/api/v4/teams/~a/groups" .server (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -321,9 +321,9 @@
 (def (search pattern)
   "Search for users named pattern"
   (let-hash (load-config)
-    (let ((outs [[ "User Id" "Message" "Reply Count" "Channel" "Pinned?" ]])
-	        (url (format "https://~a/api/v4/teams/~a/posts/search" .server .team_id))
-	        (data (my-json-object->string
+    (let* ((outs [[ "User Id" "Message" "Reply Count" "Channel" "Pinned?" ]])
+           (url (format "https://~a/api/v4/teams/~a/posts/search" .server (get-team-id)))
+	         (data (my-json-object->string
 		             (hash
 		              ("terms" pattern)
 		              ("include_deleted_channels" #f)
@@ -370,7 +370,7 @@
   "Search for channel named pattern"
   (let-hash (load-config)
     (let ((outs [[  ]])
-	        (url (format "https://~a/api/v4/teams/~a/channels/name/~a" .server .team_id name)))
+          (url (format "https://~a/api/v4/teams/~a/channels/name/~a" .server (get-team-id) name)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -422,7 +422,7 @@
   "List all channels"
   (let-hash (load-config)
     (let ((outs [[ "Name" "Display" "Purpose" "Msg Count" "Updated at" ]])
-	        (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server .user_id .team_id)))
+	        (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server .user_id (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
