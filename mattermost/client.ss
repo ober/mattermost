@@ -25,7 +25,7 @@
 
 (export #t)
 
-(def version "0.01")
+(def version "0.02")
 
 (def program-name "mattermost")
 (def config-file (format "~~/.~a.yaml" program-name))
