@@ -461,51 +461,51 @@
 	        (let-hash (u8vector->object (base64-decode .secrets))
 	          (let ((password (get-password-from-config .key .iv .password)))
 	            (hash-put! config 'token password))))
-	      config)))
+	      config))))
 
 
-(def (default-headers)
-  [
-   ["Accept" :: "*/*"]
-   ["Content-type" :: "application/json"]
-   ])
+  (def (default-headers)
+    [
+     ["Accept" :: "*/*"]
+     ["Content-type" :: "application/json"]
+     ])
 
-(def (config)
-  (let-hash (load-config)
-    (displayln "Please enter your mattermost password? (will not echo) :")
-    (let* ((password (read-password ##console-port))
-	         (cipher (make-aes-256-ctr-cipher))
-	         (iv (random-bytes (cipher-iv-length cipher)))
-	         (key (random-bytes (cipher-key-length cipher)))
-	         (encrypted-password (encrypt cipher key iv password))
-	         (enc-pass-store (u8vector->base64-string encrypted-password))
-	         (iv-store (u8vector->base64-string iv))
-	         (key-store (u8vector->base64-string key))
-	         (secrets (base64-encode (object->u8vector
-				                            (hash
-				                             (password enc-pass-store)
-				                             (iv iv-store)
-				                             (key key-store))))))
-      (displayln "Add the following secrets line to your " config-file)
-      (displayln "")
-      (displayln "secrets: " secrets))))
+  (def (config)
+    (let-hash (load-config)
+      (displayln "Please enter your mattermost password? (will not echo) :")
+      (let* ((password (read-password ##console-port))
+	           (cipher (make-aes-256-ctr-cipher))
+	           (iv (random-bytes (cipher-iv-length cipher)))
+	           (key (random-bytes (cipher-key-length cipher)))
+	           (encrypted-password (encrypt cipher key iv password))
+	           (enc-pass-store (u8vector->base64-string encrypted-password))
+	           (iv-store (u8vector->base64-string iv))
+	           (key-store (u8vector->base64-string key))
+	           (secrets (base64-encode (object->u8vector
+				                              (hash
+				                               (password enc-pass-store)
+				                               (iv iv-store)
+				                               (key key-store))))))
+        (displayln "Add the following secrets line to your " config-file)
+        (displayln "")
+        (displayln "secrets: " secrets))))
 
-(def (get-password-from-config key iv password)
-  (bytes->string
-   (decrypt
-    (make-aes-256-ctr-cipher)
-    (base64-string->u8vector key)
-    (base64-string->u8vector iv)
-    (base64-string->u8vector password))))
+  (def (get-password-from-config key iv password)
+    (bytes->string
+     (decrypt
+      (make-aes-256-ctr-cipher)
+      (base64-string->u8vector key)
+      (base64-string->u8vector iv)
+      (base64-string->u8vector password))))
 
-(def (auth-headers)
-  [
-   ["Accept" :: "*/*"]
-   ["Content-type" :: "application/json"]
-   ["Authorization" :: (format "bearer ~a" (get-token)) ]
-   ])
+  (def (auth-headers)
+    [
+     ["Accept" :: "*/*"]
+     ["Content-type" :: "application/json"]
+     ["Authorization" :: (format "bearer ~a" (get-token)) ]
+     ])
 
-(def (org-table-safe str)
-  (if (string? str)
-    (pregexp-replace* "\\|" str "-")
-    str))
+  (def (org-table-safe str)
+    (if (string? str)
+      (pregexp-replace* "\\|" str "-")
+      str))
