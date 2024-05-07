@@ -32,6 +32,7 @@
 
 (def user-list (hash))
 (def channel-list (hash))
+(def user-id #f)
 
 (def (get-token)
   (let-hash (load-config)
@@ -258,6 +259,7 @@
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
 	         (channel-id (channel->id channel))
+           (user-id (get-id-from-email .?email))
            (max-page (+ (any->int page) (any->int recur)))
            (users (hash)))
       (let lp ((page page))
