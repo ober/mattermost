@@ -80,6 +80,10 @@
 	     (argument 'channel)
 	     (argument 'messsage)))
 
+  (def get-id-from-email
+    (command 'get-id-from-email help: "Get id info for email"
+        (argument 'email)))
+
   (call-with-getopt process-args args
 		    program: program-name
 		    help: "Mattermost cli"
@@ -99,6 +103,7 @@
 		    user
 		    userinfo
 		    users
+            get-id-from-email
 		    whisper
 		    ))
 
@@ -137,5 +142,7 @@
        (userinfo .term))
       ((users)
        (users))
+      ((get-id-from-email)
+       (get-id-from-email .email))
       ((whisper)
        (whisper .user .channel .message)))))
