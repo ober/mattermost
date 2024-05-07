@@ -158,11 +158,12 @@
 				                        .?update_at ] outs))))))
       (style-output outs .?style))))
 
-(def (userinfo user)
-  "List users"
+(def (userinfo email)
+  "Fetch the user data for user_id"
   (let-hash (load-config)
-    (let ((outs [[ "Username" "First Name" "Last Name" "Nickname" "Position" "Updated" "Roles" "Id" ]])
-	        (url (format "https://~a/api/v4/users/username/~a" .server user)))
+    (let* ((outs [[ "Username" "First Name" "Last Name" "Nickname" "Position" "Updated" "Roles" "Id" ]])
+          (user_id (get-id-from-email email))
+          (url (format "https://~a/api/v4/users/username/~a" .server user_id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -453,10 +454,10 @@
         (when (and .?key .?iv .?password)
 	        (hash-put! config 'password (get-password-from-config .key .iv .password)))
         (hash-put! config 'style (or .?style "org-mode"))
-        (unless user-id
-          (set! user-id (get-id-from-email .?email)))
-        (unless team-id
-          (set! team-id (get-id-from-email .?email)))
+        ;; (unless user-id
+        ;;   (set! user-id (get-id-from-email .?email)))
+        ;; (unless team-id
+        ;;   (set! team-id ( .?email)))
         (when .?secrets
 	        (let-hash (u8vector->object (base64-decode .secrets))
 	          (let ((password (get-password-from-config .key .iv .password)))
