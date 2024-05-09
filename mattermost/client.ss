@@ -145,7 +145,7 @@
 	        (error body))
 	      (when (list? body)
 	        (for (user body)
-	          (pi user)
+	          (dp (pi user))
 	          (let-hash user
 	            (set! outs (cons [
 				                        .?username
