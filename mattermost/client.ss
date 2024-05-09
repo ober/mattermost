@@ -60,7 +60,7 @@
   "Fetch unread messages and surrounding items from channel"
   (let-hash (load-config)
     (let ((outs [[ "User" "Message" "Id" ]])
-          (url (format "https://~a/api/v4/users/~a/channels/~a/posts/unread" .server .user_id (channel->id channel))))
+          (url (format "https://~a/api/v4/users/~a/channels/~a/posts/unread" .server (email->id .email) (channel->id channel))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -85,7 +85,7 @@
   "Get the total unread messages and mentions for your user"
   (let-hash (load-config)
     (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/users/~a/teams/unread" .server .user_id)))
+	        (url (format "https://~a/api/v4/users/~a/teams/unread" .server (email->id .email))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -422,7 +422,7 @@
   "List all channels"
   (let-hash (load-config)
     (let ((outs [[ "Name" "Display" "Purpose" "Msg Count" "Updated at" ]])
-	        (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server .user_id (get-team-id))))
+	        (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server (email->id .email) (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
