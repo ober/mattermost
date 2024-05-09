@@ -139,7 +139,7 @@
   "List users"
   (let-hash (load-config)
     (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
-	        (url (format "https://~a/api/v4/users?active=true" .server)))
+	        (url (format "https://~a/api/v4/users?active=true&per_page=200" .server)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
