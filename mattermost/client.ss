@@ -180,7 +180,7 @@
 	        (error body))
 	      body))))
 
-(def (email->id email)
+(def (get-id-from-email email)
   "Fetch the userid based on email"
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/users/email/~a" .server email)))
@@ -189,9 +189,9 @@
 	        (error body))
 	      body))))
 
-(def (get-id-from-email email)
+(def (email->id email)
   "Wrapper for email-id"
-  (let ((user (email->id email)))
+  (let ((user (get-id-from-email email)))
     (when (hash-table? user)
       (dp (hash->string user))
       (let-hash user
@@ -420,8 +420,10 @@
 (def (channels)
   "List all channels"
   (let-hash (load-config)
-    (let ((outs [[ "Name" "Display" "Purpose" "Msg Count" "Updated at" ]])
-	        (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server (email->id .email) (get-team-id))))
+    (let* ((outs [[ "Name" "Display" "Purpose" "Msg Count" "Updated at" ]])
+           (user-id (email->id .email))
+           (team-id (get-team-id))
+           (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server user-id team-id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
 	      (unless status
 	        (error body))
@@ -463,10 +465,6 @@
         (when (and .?key .?iv .?password)
 	        (hash-put! config 'password (get-password-from-config .key .iv .password)))
         (hash-put! config 'style (or .?style "org-mode"))
-        ;; (unless user-id
-        ;;   (set! user-id (get-id-from-email .?email)))
-        ;; (unless team-id
-        ;;   (set! team-id ( .?email)))
         (when .?secrets
 	        (let-hash (u8vector->object (base64-decode .secrets))
 	          (let ((password (get-password-from-config .key .iv .password)))
