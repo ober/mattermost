@@ -78,7 +78,7 @@
     (command 'whisper help: "Whisper to user in channel."
 	     (argument 'user)
 	     (argument 'channel)
-	     (argument 'messsage)))
+	     (argument 'message)))
   (def get-team-id
     (command 'get-team-id help: "Get id info for email"))
 
