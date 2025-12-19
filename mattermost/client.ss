@@ -611,7 +611,7 @@
   "Upload a file"
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/files?channel_id=~a" .server channel-id)))
-      (with ([ status body ] (rest-call 'post url (auth-headers) 
+      (with ([ status body ] (rest-call 'post url (auth-headers)
                                         (call-with-input-file filepath
                                           (lambda (p) (read-all-as-string p)))))
         (unless status
@@ -698,7 +698,7 @@
 (def (delete-reaction user-id post-id emoji-name)
   "Delete a reaction"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/users/~a/posts/~a/reactions/~a" 
+    (let ((url (format "https://~a/api/v4/users/~a/posts/~a/reactions/~a"
                        .server user-id post-id emoji-name)))
       (with ([ status body ] (rest-call 'delete url (auth-headers)))
         (unless status
@@ -821,7 +821,7 @@
   "List incoming webhooks"
   (let-hash (load-config)
     (let ((outs [[ "Display Name" "Channel Id" "Team Id" "Id" ]])
-          (url (format "https://~a/api/v4/hooks/incoming?page=~a&per_page=~a" 
+          (url (format "https://~a/api/v4/hooks/incoming?page=~a&per_page=~a"
                        .server page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -883,7 +883,7 @@
   "List outgoing webhooks"
   (let-hash (load-config)
     (let ((outs [[ "Display Name" "Channel Id" "Team Id" "Id" ]])
-          (url (format "https://~a/api/v4/hooks/outgoing?page=~a&per_page=~a" 
+          (url (format "https://~a/api/v4/hooks/outgoing?page=~a&per_page=~a"
                        .server page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -945,7 +945,7 @@
 (def (list-commands (team-id #f))
   "List commands for a team"
   (let-hash (load-config)
-    (let ((outs [[ "Trigger" "Display Name" "Description" "Team Id" "Id" ]])
+    (let* ((outs [[ "Trigger" "Display Name" "Description" "Team Id" "Id" ]])
           (tid (or team-id (get-team-id)))
           (url (format "https://~a/api/v4/commands?team_id=~a" .server tid)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
@@ -1151,7 +1151,7 @@
 (def (get-user-audit user-id (page 0) (per-page 60))
   "Get user audit"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/users/~a/audits?page=~a&per_page=~a" 
+    (let ((url (format "https://~a/api/v4/users/~a/audits?page=~a&per_page=~a"
                        .server user-id page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1232,7 +1232,7 @@
   "Get team members"
   (let-hash (load-config)
     (let ((outs [[ "User Id" "Team Id" "Roles" ]])
-          (url (format "https://~a/api/v4/teams/~a/members?page=~a&per_page=~a" 
+          (url (format "https://~a/api/v4/teams/~a/members?page=~a&per_page=~a"
                        .server team-id page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1363,7 +1363,7 @@
 (def (get-channel-by-name team-id channel-name)
   "Get a channel by name"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/teams/~a/channels/name/~a" 
+    (let ((url (format "https://~a/api/v4/teams/~a/channels/name/~a"
                        .server team-id channel-name)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1384,7 +1384,7 @@
   "Get channel members"
   (let-hash (load-config)
     (let ((outs [[ "User Id" "Channel Id" "Roles" ]])
-          (url (format "https://~a/api/v4/channels/~a/members?page=~a&per_page=~a" 
+          (url (format "https://~a/api/v4/channels/~a/members?page=~a&per_page=~a"
                        .server channel-id page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1408,7 +1408,7 @@
 (def (remove-channel-member channel-id user-id)
   "Remove a channel member"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels/~a/members/~a" 
+    (let ((url (format "https://~a/api/v4/channels/~a/members/~a"
                        .server channel-id user-id)))
       (with ([ status body ] (rest-call 'delete url (auth-headers)))
         (unless status
@@ -1495,7 +1495,7 @@
 (def (get-posts-since channel-id time)
   "Get posts since a time"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels/~a/posts?since=~a" 
+    (let ((url (format "https://~a/api/v4/channels/~a/posts?since=~a"
                        .server channel-id time)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1505,7 +1505,7 @@
 (def (get-posts-before channel-id post-id (page 0) (per-page 60))
   "Get posts before a post"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels/~a/posts?before=~a&page=~a&per_page=~a" 
+    (let ((url (format "https://~a/api/v4/channels/~a/posts?before=~a&page=~a&per_page=~a"
                        .server channel-id post-id page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
@@ -1515,7 +1515,7 @@
 (def (get-posts-after channel-id post-id (page 0) (per-page 60))
   "Get posts after a post"
   (let-hash (load-config)
-    (let ((url (format "https://~a/api/v4/channels/~a/posts?after=~a&page=~a&per_page=~a" 
+    (let ((url (format "https://~a/api/v4/channels/~a/posts?after=~a&page=~a&per_page=~a"
                        .server channel-id post-id page per-page)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
