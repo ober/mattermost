@@ -38,22 +38,22 @@
 (def (get-token)
   (let-hash (load-config)
     (let ((token "")
-	        (url (format "https://~a/api/v4/users/login" .server))
-	        (data (my-json-object->string
-		             (hash
-		              ("login_id" .email)
-		              ("password" .token)))))
+	      (url (format "https://~a/api/v4/users/login" .server))
+	      (data (my-json-object->string
+		         (hash
+		          ("login_id" .email)
+		          ("password" .token)))))
       (let* ((reply (http-post url headers: (default-headers) data: data))
-	           (status (request-status reply))
-	           (headers (request-headers reply))
-	           (text (request-text reply)))
-	      (unless status
-	        (error text))
-	      (for (header headers)
-	        (let ((k (car header))
-		            (v (cdr header)))
-	          (when (string=? k "Token")
-	            (set! token v)))))
+	         (status (request-status reply))
+	         (headers (request-headers reply))
+	         (text (request-text reply)))
+	    (unless status
+	      (error text))
+	    (for (header headers)
+	      (let ((k (car header))
+		        (v (cdr header)))
+	        (when (string=? k "Token")
+	          (set! token v)))))
       token)))
 
 (def (unread channel)
@@ -62,16 +62,16 @@
     (let ((outs [[ "User" "Message" "Id" ]])
           (url (format "https://~a/api/v4/users/~a/channels/~a/posts/unread" .server (email->id .email) (channel->id channel))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (let-hash body
-	        (when (hash-table? .?posts)
-	          (hash-for-each
-	           (lambda (k v)
-	             (when (hash-table? v)
-		             (let-hash v
-		               (set! outs (cons [ (id->username .?user_id) (one-liner .?message) .?id ] outs)))))
-	           .?posts))))
+	    (unless status
+	      (error body))
+	    (let-hash body
+	      (when (hash-table? .?posts)
+	        (hash-for-each
+	         (lambda (k v)
+	           (when (hash-table? v)
+		         (let-hash v
+		           (set! outs (cons [ (id->username .?user_id) (one-liner .?message) .?id ] outs)))))
+	         .?posts))))
       (style-output outs .?style))))
 
 (def (one-liner string)
@@ -85,11 +85,11 @@
   "Get the total unread messages and mentions for your user"
   (let-hash (load-config)
     (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/users/~a/teams/unread" .server (email->id .email))))
+	      (url (format "https://~a/api/v4/users/~a/teams/unread" .server (email->id .email))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (pi (car body))))))
+	    (unless status
+	      (error body))
+	    (pi (car body))))))
 
 (def (privates)
   "Get a page of private channels on a team based on query string"
@@ -97,78 +97,78 @@
     (let* ((outs [[ "stuff" ]])
            (url (format "https://~a/api/v4/teams/~a/channels/private" .server (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (pi body)))))
+	    (unless status
+	      (error body))
+	    (pi body)))))
 
 (def (plugins)
   "Get a page of private channels on a team based on query string"
   (let-hash (load-config)
     (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/plugins/statuses" .server)))
+	      (url (format "https://~a/api/v4/plugins/statuses" .server)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (pi body)))))
+	    (unless status
+	      (error body))
+	    (pi body)))))
 
 (def (groups)
   "Get a page of private channels on a team based on query string"
   (let-hash (load-config)
     (let ((outs [[ "stuff" ]])
-	        (url (format "https://~a/api/v4/teams/~a/groups" .server (get-team-id))))
+	      (url (format "https://~a/api/v4/teams/~a/groups" .server (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (pi body)))))
+	    (unless status
+	      (error body))
+	    (pi body)))))
 
 (def (emojis)
   "Get a page of private channels on a team based on query string"
   (let-hash (load-config)
     (let ((outs [[ "Name" "Creator" "Updated" "Created" "Deleted" "Id" ]])
-	        (url (format "https://~a/api/v4/emoji" .server)))
+	      (url (format "https://~a/api/v4/emoji" .server)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (for (emoji body)
-	        (when (hash-table? emoji)
-	          (let-hash emoji
-	            (set! outs (cons [ .?name (hash->list (id->user .?creator_id)) .?updated_at .?created_at .?deleted_at .?id ] outs))))))
+	    (unless status
+	      (error body))
+	    (for (emoji body)
+	      (when (hash-table? emoji)
+	        (let-hash emoji
+	          (set! outs (cons [ .?name (hash->list (id->user .?creator_id)) .?updated_at .?created_at .?deleted_at .?id ] outs))))))
       (style-output outs .?style))))
 
 (def (users)
   "List users"
   (let-hash (load-config)
     (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
-	        (url (format "https://~a/api/v4/users?active=true&per_page=200&in_team=~a" .server (get-team-id))))
+	      (url (format "https://~a/api/v4/users?active=true&per_page=200&in_team=~a" .server (get-team-id))))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (when (list? body)
-	        (for (user body)
-	          (let-hash user
-	            (set! outs (cons [
-				                        .?username
-				                        .?id
-				                        .?email
-				                        .?position
-				                        .?first_name
-				                        .?last_name
-				                        .?create_at
-				                        .?update_at ] outs))))))
+	    (unless status
+	      (error body))
+	    (when (list? body)
+	      (for (user body)
+	        (let-hash user
+	          (set! outs (cons [
+				                .?username
+				                .?id
+				                .?email
+				                .?position
+				                .?first_name
+				                .?last_name
+				                .?create_at
+				                .?update_at ] outs))))))
       (style-output outs .?style))))
 
 (def (userinfo username)
   "Fetch the user data for user_id"
   (let-hash (load-config)
     (let* ((outs [[ "Username" "First Name" "Last Name" "Nickname" "Position" "Updated" "Roles" "Id" ]])
-          (url (format "https://~a/api/v4/users/username/~a" .server username)))
+           (url (format "https://~a/api/v4/users/username/~a" .server username)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
           (dp (hash->string body))
-	        (let-hash body
-	          (set! outs (cons [ .?username .?first_name .?last_name .?nickname .?position (print-date (epoch->date .?update_at)) .?roles .?id ] outs)))))
+	      (let-hash body
+	        (set! outs (cons [ .?username .?first_name .?last_name .?nickname .?position (print-date (epoch->date .?update_at)) .?roles .?id ] outs)))))
       (style-output outs .?style))))
 
 (def (id->post id)
@@ -176,18 +176,18 @@
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/posts/~a" .server id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      body))))
+	    (unless status
+	      (error body))
+	    body))))
 
 (def (get-id-from-email email)
   "Fetch the userid based on email"
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/users/email/~a" .server email)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      body))))
+	    (unless status
+	      (error body))
+	    body))))
 
 (def (email->id email)
   "Wrapper for email-id"
@@ -202,9 +202,9 @@
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/users/~a" .server id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      body))))
+	    (unless status
+	      (error body))
+	    body))))
 
 (def (id->username id)
   "Fetch the username"
@@ -212,85 +212,85 @@
     (if hit
       hit
       (let ((user (id->user id)))
-	      (when (hash-table? user)
-	        (let-hash user
-	          (hash-put! user-list id .?username)
-	          (or .?username .email)))))))
+	    (when (hash-table? user)
+	      (let-hash user
+	        (hash-put! user-list id .?username)
+	        (or .?username .email)))))))
 
 (def (id->channel id)
   (let ((hit (hash-get channel-list id)))
     (if hit
       hit
       (let ((channel (id->chan id)))
-	      (when (hash-table? channel)
-	        (let-hash channel
-	          (hash-put! channel-list id .?display_name)
-	          .?display_name))))))
+	    (when (hash-table? channel)
+	      (let-hash channel
+	        (hash-put! channel-list id .?display_name)
+	        .?display_name))))))
 
 (def (id->chan id)
   "Fetch contents of post id"
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/channels/~a" .server id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      body))))
+	    (unless status
+	      (error body))
+	    body))))
 
 (def (post channel message)
   "Post a message to a channel"
   (let-hash (load-config)
     (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
-	        (url (format "https://~a/api/v4/posts" .server))
-	        (data (my-json-object->string
-		             (hash
-		              ("channel_id" (channel->id channel))
-		              ("message" message)
-		              ))))
+	      (url (format "https://~a/api/v4/posts" .server))
+	      (data (my-json-object->string
+		         (hash
+		          ("channel_id" (channel->id channel))
+		          ("message" message)
+		          ))))
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          (set! outs (cons [
-			                        .message
-			                        (hash->list .metadata)
-			                        ] outs))))))))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        (set! outs (cons [
+			                  .message
+			                  (hash->list .metadata)
+			                  ] outs))))))))
 
 (def (posts channel page recur)
   "Get posts for a channel"
   (let-hash (load-config)
     (let* ((outs [[ "Time" "User" "Message" ]])
-	         (channel-id (channel->id channel))
+	       (channel-id (channel->id channel))
            (user-id (get-id-from-email .?email))
            (max-page (+ (any->int page) (any->int recur)))
            (users (hash)))
       (let lp ((page page))
-	      (let* ((now (float->int (time->seconds (current-time))))
-	             (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=~a" .server channel-id page)))
-	        (with ([ status body ] (rest-call 'get url (auth-headers)))
-	          (unless status
-	            (error body))
-	          (when (hash-table? body)
-	            (dp (hash->list body))
-	            (let-hash body
-		            (let ((posts (hash-keys .?posts)))
-		              (for (item (reverse .?order))
-		                (let ((item-sym (string->symbol item)))
-		                  (when (member item-sym posts)
-			                  (let-hash (hash-ref .?posts item-sym)
-			                    (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
-			                      (if (and
-				                          (hash-table? .props)
-				                          (hash-get .props 'webhook_display_name))
-			                        (let-hash .props
-				                        (set! outs (cons [ dt
-						                                       .?override_username
-						                                       (format "~a ~a"
-							                                             .?webhook_display_name
-							                                             (let-hash (car .attachments)
-							                                               (format "~a ~a" .text .fallback))) ] outs)))
-      			                  (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
-			                    )))))
+	    (let* ((now (float->int (time->seconds (current-time))))
+	           (url (format "https://~a/api/v4/channels/~a/posts?per_page=200&page=~a" .server channel-id page)))
+	      (with ([ status body ] (rest-call 'get url (auth-headers)))
+	        (unless status
+	          (error body))
+	        (when (hash-table? body)
+	          (dp (hash->list body))
+	          (let-hash body
+		        (let ((posts (hash-keys .?posts)))
+		          (for (item (reverse .?order))
+		            (let ((item-sym (string->symbol item)))
+		              (when (member item-sym posts)
+			            (let-hash (hash-ref .?posts item-sym)
+			              (let ((dt (date->string (epoch->date (inexact (* .create_at .001))) "~Y-~m-~d ~H:~M:~S")))
+			                (if (and
+				                  (hash-table? .props)
+				                  (hash-get .props 'webhook_display_name))
+			                  (let-hash .props
+				                (set! outs (cons [ dt
+						                           .?override_username
+						                           (format "~a ~a"
+							                               .?webhook_display_name
+							                               (let-hash (car .attachments)
+							                                 (format "~a ~a" .text .fallback))) ] outs)))
+      			              (set! outs (cons [ dt (id->username .?user_id) (lines-to-spaces .message) ] outs))))
+			              )))))
                 (when (< (any->int page) max-page)
                   (dp (format "page is ~a less than ~a" page max-page))
                   (lp (1+ (any->int page)))))))))
@@ -300,67 +300,67 @@
   "Post a message to a channel"
   (let-hash (load-config)
     (let ((outs [[ "Message" "Reply Count" "Channel" "User Id" "Pinned?" ]])
-	        (url (format "https://~a/api/v4/posts" .server))
-	        (data (my-json-object->string
-		             (hash
-		              ("user_id" (user->id user))
-		              ("post" (hash
-			                     ("channel_id" (channel->id channel))
-			                     ("message" message)))))))
+	      (url (format "https://~a/api/v4/posts" .server))
+	      (data (my-json-object->string
+		         (hash
+		          ("user_id" (user->id user))
+		          ("post" (hash
+			               ("channel_id" (channel->id channel))
+			               ("message" message)))))))
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          (set! outs (cons [
-			                        .message
-			                        (hash->list .metadata)
-			                        ] outs))))))))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        (set! outs (cons [
+			                  .message
+			                  (hash->list .metadata)
+			                  ] outs))))))))
 
 (def (search pattern)
   "Search for users named pattern"
   (let-hash (load-config)
     (let* ((outs [[ "User Id" "Message" "Reply Count" "Channel" "Pinned?" ]])
            (url (format "https://~a/api/v4/teams/~a/posts/search" .server (get-team-id)))
-	         (data (my-json-object->string
-		             (hash
-		              ("terms" pattern)
-		              ("include_deleted_channels" #f)
-		              ("is_or_search" #f)
-		              ("per_page" 100)
-		              ))))
+	       (data (my-json-object->string
+		          (hash
+		           ("terms" pattern)
+		           ("include_deleted_channels" #f)
+		           ("is_or_search" #f)
+		           ("per_page" 100)
+		           ))))
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          (when (list? .order)
-	            (for (order .order)
-		            (let-hash (id->post order)
-		              (set! outs (cons [
-				                            (id->username .?user_id)
-				                            .?message
-				                            .?reply_count
-				                            (id->channel .?channel_id)
-				                            .?is_pinned
-				                            ] outs))))))))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        (when (list? .order)
+	          (for (order .order)
+		        (let-hash (id->post order)
+		          (set! outs (cons [
+				                    (id->username .?user_id)
+				                    .?message
+				                    .?reply_count
+				                    (id->channel .?channel_id)
+				                    .?is_pinned
+				                    ] outs))))))))
       (style-output outs .?style))))
 
 (def (user pattern)
   "Search for users named pattern"
   (let-hash (load-config)
     (let ((outs [[ "username" "id" "email" "position" "First Name" "Last Name" "created_at" "updated_at" ]])
-	        (url (format "https://~a/api/v4/users/search" .server))
-	        (data (my-json-object->string
-		             (hash
-		              ("term" pattern)))))
+	      (url (format "https://~a/api/v4/users/search" .server))
+	      (data (my-json-object->string
+		         (hash
+		          ("term" pattern)))))
       (with ([ status body ] (rest-call 'post url (auth-headers) data))
-	      (unless status
-	        (error body))
-	      (when (list? body)
-	        (for (user body)
-	          (let-hash user
-	            (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
+	    (unless status
+	      (error body))
+	    (when (list? body)
+	      (for (user body)
+	        (let-hash user
+	          (set! outs (cons [ .?username .?id .?email .?position .?first_name .?last_name .?create_at .?update_at ] outs))))))
       (style-output outs .?style))))
 
 ;; Channels
@@ -371,23 +371,23 @@
     (let ((outs [[  ]])
           (url (format "https://~a/api/v4/teams/~a/channels/name/~a" .server (get-team-id) name)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          .id))))))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        .id))))))
 
 (def (user->id name)
   "Search for channel named pattern"
   (let-hash (load-config)
     (let ((outs [[  ]])
-	        (url (format "https://~a/api/v4/users/username/~a" .server name)))
+	      (url (format "https://~a/api/v4/users/username/~a" .server name)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
-	      (when (hash-table? body)
-	        (let-hash body
-	          .id))))))
+	    (unless status
+	      (error body))
+	    (when (hash-table? body)
+	      (let-hash body
+	        .id))))))
 
 ;; teams
 (def (get-team-id)
@@ -401,20 +401,20 @@
   (let-hash (load-config)
     (let ((url (format "https://~a/api/v4/teams" .server)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
+	    (unless status
+	      (error body))
         body))))
 
 (def (teams)
   "List all teams"
   (let-hash (load-config)
     (let ((outs [[ "Name" "Display" "Open Invite?" "Id" ]])
-	        (body (get-teams)))
-	    (when (list? body)
-	      (for (team body)
-	        (let-hash team
-	          (set! outs (cons [ .?name .?display_name .?allow_open_invite .?id ] outs)))))
-    (style-output outs .?style))))
+	      (body (get-teams)))
+	  (when (list? body)
+	    (for (team body)
+	      (let-hash team
+	        (set! outs (cons [ .?name .?display_name .?allow_open_invite .?id ] outs)))))
+      (style-output outs .?style))))
 
 
 (def (channels)
@@ -425,20 +425,20 @@
            (team-id (get-team-id))
            (url (format "https://~a/api/v4/users/~a/teams/~a/channels" .server user-id team-id)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
-	      (unless status
-	        (error body))
+	    (unless status
+	      (error body))
         (dp body)
         (when (list? body)
           (for (channel body)
             (dp (hash->string channel))
-	          (let-hash channel
-	            (set! outs (cons [
-				                        .name
-				                        .display_name
-				                        (org-table-safe .purpose)
-				                        .total_msg_count
-				                        .update_at
-				                        ] outs))))))
+	        (let-hash channel
+	          (set! outs (cons [
+				                .name
+				                .display_name
+				                (org-table-safe .purpose)
+				                .total_msg_count
+				                .update_at
+				                ] outs))))))
       (style-output outs .?style))))
 
 ;; Config functions
@@ -463,13 +463,13 @@
          data))
       (let-hash config
         (when (and .?key .?iv .?password)
-	        (hash-put! config 'password (get-password-from-config .key .iv .password)))
+	      (hash-put! config 'password (get-password-from-config .key .iv .password)))
         (hash-put! config 'style (or .?style "org-mode"))
         (when .?secrets
-	        (let-hash (u8vector->object (base64-decode .secrets))
-	          (let ((password (get-password-from-config .key .iv .password)))
-	            (hash-put! config 'token password))))
-	      config))))
+	      (let-hash (u8vector->object (base64-decode .secrets))
+	        (let ((password (get-password-from-config .key .iv .password)))
+	          (hash-put! config 'token password))))
+	    config))))
 
 
 (def (default-headers)
@@ -482,18 +482,18 @@
   (let-hash (load-config)
     (displayln "Please enter your mattermost password? (will not echo) :")
     (let* ((password (read-password ##console-port))
-	         (cipher (make-aes-256-ctr-cipher))
-	         (iv (random-bytes (cipher-iv-length cipher)))
-	         (key (random-bytes (cipher-key-length cipher)))
-	         (encrypted-password (encrypt cipher key iv password))
-	         (enc-pass-store (u8vector->base64-string encrypted-password))
-	         (iv-store (u8vector->base64-string iv))
-	         (key-store (u8vector->base64-string key))
-	         (secrets (base64-encode (object->u8vector
-				                            (hash
-				                             (password enc-pass-store)
-				                             (iv iv-store)
-				                             (key key-store))))))
+	       (cipher (make-aes-256-ctr-cipher))
+	       (iv (random-bytes (cipher-iv-length cipher)))
+	       (key (random-bytes (cipher-key-length cipher)))
+	       (encrypted-password (encrypt cipher key iv password))
+	       (enc-pass-store (u8vector->base64-string encrypted-password))
+	       (iv-store (u8vector->base64-string iv))
+	       (key-store (u8vector->base64-string key))
+	       (secrets (base64-encode (object->u8vector
+				                    (hash
+				                     (password enc-pass-store)
+				                     (iv iv-store)
+				                     (key key-store))))))
       (displayln "Add the following secrets line to your " config-file)
       (displayln "")
       (displayln "secrets: " secrets))))
@@ -946,8 +946,8 @@
   "List commands for a team"
   (let-hash (load-config)
     (let* ((outs [[ "Trigger" "Display Name" "Description" "Team Id" "Id" ]])
-          (tid (or team-id (get-team-id)))
-          (url (format "https://~a/api/v4/commands?team_id=~a" .server tid)))
+           (tid (or team-id (get-team-id)))
+           (url (format "https://~a/api/v4/commands?team_id=~a" .server tid)))
       (with ([ status body ] (rest-call 'get url (auth-headers)))
         (unless status
           (error body))
