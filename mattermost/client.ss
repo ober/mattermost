@@ -466,9 +466,15 @@
 	      (hash-put! config 'password (get-password-from-config .key .iv .password)))
         (hash-put! config 'style (or .?style "org-mode"))
         (when .?secrets
-	      (let-hash (u8vector->object (base64-decode .secrets))
-	        (let ((password (get-password-from-config .key .iv .password)))
-	          (hash-put! config 'token password))))
+          ;; Use JSON parsing instead of u8vector->object for security
+          ;; Prevents arbitrary code execution from malicious config files
+          (let ((secrets-json (parameterize ((read-json-key-as-symbol? #t))
+                                (with-input-from-string
+                                    (bytes->string (base64-decode .secrets))
+                                  read-json))))
+            (let-hash secrets-json
+              (let ((password (get-password-from-config .key .iv .password)))
+                (hash-put! config 'token password)))))
 	    config))))
 
 
@@ -489,11 +495,12 @@
 	       (enc-pass-store (u8vector->base64-string encrypted-password))
 	       (iv-store (u8vector->base64-string iv))
 	       (key-store (u8vector->base64-string key))
-	       (secrets (base64-encode (object->u8vector
-				                    (hash
-				                     (password enc-pass-store)
-				                     (iv iv-store)
-				                     (key key-store))))))
+           ;; Use JSON encoding instead of object->u8vector for security
+           (secrets-hash (hash
+                          ("password" enc-pass-store)
+                          ("iv" iv-store)
+                          ("key" key-store)))
+	       (secrets (base64-encode (string->bytes (json-object->string secrets-hash)))))
       (displayln "Add the following secrets line to your " config-file)
       (displayln "")
       (displayln "secrets: " secrets))))
